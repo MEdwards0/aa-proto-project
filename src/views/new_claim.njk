@@ -1,0 +1,213 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+<h2>Processing for claimant {{page.nino}}</h2>
+
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+<div class="govuk-form-group" id='start-new-claim-radios'>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Would you like to begin a new claim process?
+      </h1>
+    </legend>
+    <div id="new-claim-hint" class="govuk-hint">
+        This will begin a new claimant process.
+    </div>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="new-claim-1" name="new-claim" type="radio" value="yes">
+        <label class="govuk-label govuk-radios__label" for="new-claim">
+          Yes
+        </label>
+        <div id="new-claim-yes-hint" class="govuk-hint">
+            This will begin a new claim.
+        </div>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="new-claim-2" name="new-claim" type="radio" value="no">
+        <label class="govuk-label govuk-radios__label" for="new-claim">
+          No
+        </label>
+        <div id="new-claim-no-hint" class="govuk-hint">
+            This will abort the process and take you back to the home page.
+        </div>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+{# {% from "govuk/components/button/macro.njk" import govukButton %} #}
+
+<div id='radio-next-button'>
+    <button class="govuk-button" data-module="govuk-button" id='start-claim'>
+         Next
+    </button>
+</div>
+
+
+{# <div class="govuk-form-group" id="are-you-cool-fields" hidden>
+  <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you cool?
+      </h1>
+    </legend>
+    <div id="waste-hint" class="govuk-hint">
+      Select all that apply.
+    </div>
+    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="coolness" name="coolness" type="checkbox" value="true">
+        <label class="govuk-label govuk-checkboxes__label" for="coolness">
+          Yes
+        </label>
+      </div>
+    </div>
+    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="coolness" name="coolness" type="checkbox" value="false">
+        <label class="govuk-label govuk-checkboxes__label" for="coolness">
+          No
+        </label>
+      </div>
+    </div>
+
+  </fieldset>
+</div> #}
+
+<div class="govuk-form-group" id='other-benefit-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you currently receiving any other benefits?
+      </h1>
+    </legend>
+    <div id="other-benefit-hint" class="govuk-hint">
+        <span>This includes DLA, PIP or ADP. (Disability Living Allowance, Personal Independance Payment or Adult Disability Payment.)</span>
+    </div>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="other-benefit-yes" name="other-benefit" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="other-benefit">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="other-benefit-no" name="other-benefit" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="other-benefit">
+          No
+        </label>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div id='back-to-new-claim-div' hidden>
+    <button class="govuk-button" data-module="govuk-button" id='back-to-new-claim-button'>
+         Back
+    </button>
+</div>
+
+<div id='other-benefit-button-div' hidden>
+    <button class="govuk-button" data-module="govuk-button" id='other-benefit-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group" id='pension-age-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Have you reached state pension age?
+      </h1>
+    </legend>
+    <div id="pension-age-hint" class="govuk-hint">
+        <span>State pension age is currently 66 years old.</span>
+    </div>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="pension-age-yes" name="pension-age" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="pension-age">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="pension-age-no" name="pension-age" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="pension-age">
+          No
+        </label>
+        <div id="pension-age-no" class="govuk-error-message" hidden>
+            <span>You must be at state pension age to be eligible for Attendance Allowance.</span>
+        </div>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div id='back-other-benefit-div' hidden>
+    <button class="govuk-button" data-module="govuk-button" id='back-to-other-benefit-button'>
+         Back
+    </button>
+</div>
+
+<div id='pension-age-button-div' hidden>
+    <button class="govuk-button" data-module="govuk-button" id='pension-age-button'>
+        Next
+    </button>
+</div>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+
+  <style>
+    * {
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+    }
+  </style>
+
+  <script>
+    const startClaimButton = document.getElementById('start-claim');
+
+    function startClaimNext() {
+        const radioOption = document.querySelector('input[name="new-claim"]:checked');
+        if (radioOption.value == 'yes') {
+            button.style.display = 'none';
+            document.getElementById('start-new-claim-radios').style.display = 'none';
+            document.getElementById('radio-next-button').style.display = 'none';
+            document.getElementById('back-to-new-claim-div').style.display = 'block';
+            document.getElementById('other-benefit-radio-div').style.display = 'block';
+
+        } else {
+            window.location.href = '/';
+        };
+    }
+
+    startClaimButton.addEventListener('click', startClaimNext);
+
+    const coolButton = document.getElementById('cool-submit');
+
+    {# function getOtherBenefitChoice() {
+        const option = document.querySelector('input[name="other-benefit"]:checked');
+
+        if(option.value == 'Yes') {
+
+        }
+    } #}
+
+
+
+    coolButton.addEventListener('click', getCheckboxValues);
+  </script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

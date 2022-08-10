@@ -1,0 +1,81 @@
+{# <link rel="stylesheet" type="text/css" href="/styles/main.css"> #}
+
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+
+<header class="custom-header">
+  <span class="account">USER: {{page.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+<h1 class="govuk-heading-l">Security questions</h1>
+<h2 id="nino" class="govuk-heading-l">{{page.nino}}</h2>
+
+<form method='POST' action='/validate-nino/{{page.route}}/security-questions/{{page.nino}}'>
+
+    <h2 class="govuk-heading-l">{{page.questions.questionOne}}</h2>
+    <input type="text" name="answerOne" class="govuk-input govuk-input--width-20" required>
+    </br>
+    <h2 class="govuk-heading-l">{{page.questions.questionTwo}}</h2>
+    <input type="text" name="answerTwo" class="govuk-input govuk-input--width-20" required>
+    </br>
+    <h2 class="govuk-heading-l">{{page.questions.questionThree}}</h2>
+    <input type="text" name="answerThree" class="govuk-input govuk-input--width-20" required>
+    </br>
+    <button class="govuk-button" data-module="govuk-button" type="submit"></button>
+</form>
+
+{%if page.error%}
+  <p class="error">There was an error.</p>
+
+  <style>
+    .error {
+    color: red;
+    font-size: 1.2em;
+    font-family: "Trebuchet MS", Helvetica, sans-serif
+    }
+
+    .govuk-input {
+      border-color: red;
+    }
+
+  </style>
+{%endif%}
+
+<style>
+  .custom-header {
+    font: "Trebuchet MS", Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    top: 1%;
+    right: 16%;
+    display: grid;
+  }
+
+  .signout a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .signout a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+{% endblock %}
+{% block bodyEnd %}
+<style>
+    #nino {
+        text-decoration: underline;
+    }
+</style>
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="/styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

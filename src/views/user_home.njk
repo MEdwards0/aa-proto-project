@@ -1,0 +1,117 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+
+<header class="custom-header">
+  <span class="account">USER: {{profile.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+<h1 id="benefit-header">Attendance Allowance User Interface</h1>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    <div id="customer-actions-sections">
+      <h1 id="customer-actions-heading" class="govuk-heading-x1">Customer Actions</h1>
+          <a href='validate-nino/process-customer'><button class="govuk-button" data-module="govuk-button" type="button">Process Customer</button></a>
+          <a href='validate-nino/view-customer-data'><button class="govuk-button" data-module="govuk-button" type="button">View Customer Data</button></a>
+    </div>
+  </div>
+
+  <div class="govuk-grid-column-one-half">
+    <div id="user-action-section">
+      <h1 id="customer-actions-heading" class="govuk-heading-x1">User Actions</h1>
+      <button class="govuk-button" data-module="govuk-button" type="button">Update Password</button>
+      <a href='log-out'><button class="govuk-button" data-module="govuk-button" id="logout" type="button">Secure Logout</button></a>
+    </div>
+  </div>
+</div>
+
+
+{# {% from "govuk/components/warning-text/macro.njk" import govukWarningText %} #}
+
+<style>
+
+  main {
+    display: inline;
+  }
+  #customer-actions-heading {
+    font: bold 2.5em/2.5em "Trebuchet MS", Helvetica, sans-serif;
+    padding: 1px;
+  }
+
+  #benefit-header {
+    font: bold 3em/3em "Trebuchet MS", Helvetica, sans-serif;
+    text-decoration: underline;
+    display: inline;
+  }
+
+  #customer-action-sections div {
+    display: inline;
+    flex-direction: row;
+    margin-right: 1em;
+  }
+
+  #customer-action-sections div button {
+    height: 3em;
+  }
+
+  .govuk-button {
+    height: 3em;
+    width: 9em;
+    margin-right: 5px;
+  }
+
+  #customer-actions-sections {
+    background-color: #f3f2f1;
+    width: auto;
+    height: auto;
+    padding-left: 10px;
+    border: 1px solid #b1b4b6;
+    margin: 10px;
+  }
+
+  #user-action-section {
+    background-color: #f3f2f1;
+    border: 1px solid #b1b4b6;
+    width: auto;
+    height: auto;
+    margin: 10px;
+    padding-left: 10px;
+  }
+
+  main {
+    margin-bottom: 100px;
+  }
+
+  .custom-header {
+    font: "Trebuchet MS", Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    top: 1%;
+    right: 16%;
+    display: grid;
+  }
+
+  .signout a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .signout a:hover {
+    text-decoration: underline;
+  }
+
+</style>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}
