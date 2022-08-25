@@ -13,9 +13,14 @@
 </header>
 
 <h1 class="govuk-heading-l">Security questions</h1>
-<h2 id="nino" class="govuk-heading-l">{{page.nino}}</h2>
+<h3 id="nino" class="govuk-heading-l">{{page.nino}}</h2>
+<h2 class="govuk-heading-s">Please confirm these details from the customer.</h3>
+<p><strong>Customer Forename:</strong> {{page.customerName}}</p>
+<p><strong>Customer Surname:</strong> {{page.customerSurname}}</p>
+<p><strong>Date of Birth:</strong> {{page.dob}}</p>
 
-<form method='POST' action='/validate-nino/{{page.route}}/security-questions/{{page.nino}}'>
+
+<form method='POST' action='/validate-nino/security-questions/{{page.nino}}'>
 
     <h2 class="govuk-heading-l">{{page.questions.questionOne}}</h2>
     <input type="text" name="answerOne" class="govuk-input govuk-input--width-20" required>
@@ -26,7 +31,7 @@
     <h2 class="govuk-heading-l">{{page.questions.questionThree}}</h2>
     <input type="text" name="answerThree" class="govuk-input govuk-input--width-20" required>
     </br>
-    <button class="govuk-button" data-module="govuk-button" type="submit"></button>
+    <button class="govuk-button" data-module="govuk-button" type="submit">Submit</button>
 </form>
 
 {%if page.error%}
@@ -48,7 +53,7 @@
 
 <style>
   .custom-header {
-    font: "Trebuchet MS", Helvetica, sans-serif;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     color: white;
     position: fixed;
     top: 1%;
@@ -64,6 +69,10 @@
 
   .signout a:hover {
     text-decoration: underline;
+  }
+
+  button {
+    margin-top: 15px;
   }
 </style>
 

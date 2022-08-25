@@ -10,7 +10,14 @@ const factory = ({
     deleteUnusedTokens, 
     findNino, 
     getSecurityQuestions,
-    checkSecurityAnswers
+    checkSecurityAnswers,
+    getCustomer,
+    getAward,
+    addClaim,
+    addCustomerAccessToken,
+    checkCustomerAccessToken,
+    deleteCustomerAccessToken,
+    verifyCustomerAccessToken
 }) => {
 
     const handleAddUser = async (username, password) => {
@@ -31,7 +38,7 @@ const factory = ({
 
     const handleLogIn = async (username, password) => {
         try {
-            await deleteExpiredTokens(); // MIGHT NEED TO AWAIT HERE. COME BACK IF YOU GET ERRORS.
+            await deleteExpiredTokens();
             const user = await getUser(username);
             const hash = user.password;
             const result = await checkPassword(password, hash);
@@ -78,11 +85,14 @@ const factory = ({
                     username: result.username,
                     id: result.id
                 }
-            }
+            };
             
         } else {
-            return {status: false}
-        }
+            return {
+                status: false,
+                error: true
+            };
+        };
     };
 
     const handleRemoveToken = async (token) => {
@@ -121,8 +131,67 @@ const factory = ({
     const handleCheckSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
         const result = await checkSecurityAnswers(nino, answerOne, answerTwo, answerThree);
         return result;
-    }
-    // const handleProcessCustomer
+    };
+
+    const handleGetCustomer = async (nino) => {
+        const customer = await getCustomer(nino);
+        const rate = await getAward(nino);
+
+        if (customer.error) {
+            // return with error being true
+            return customer;
+        }
+
+        if (rate.error) {
+            // return with error being true for rate response
+            customer.error = rate.error;
+            customer.errorMessage = rate.errorMessage;
+        };
+
+        customer.awardRate = rate.awardRate;
+
+        return customer;
+    };
+
+    const handleUpdateClaim = async (object) => {
+        const result = await addClaim(object);
+
+        return result;
+    };
+
+    const handleCheckCustomerAccessToken = async (token, user, nino) => {
+        // const tokenError = await verifyCustomerAccessToken(token);
+
+        // if (tokenError.error) {
+        //     console.log(tokenError.errorMessage);
+
+        //     return {
+        //         error: true
+        //     };
+        // };
+
+        const response = await checkCustomerAccessToken(token, user, nino);
+
+        if (response.error) {
+            console.log(response.errorMessage);
+            return {
+                error: true,
+                errorMessage: response.errorMessage
+            }
+        };
+
+        return {
+            error: response.error,
+            errorMessage: response.errorMessage || 'none',
+            token: response.token
+        };
+
+    };
+
+    const handleAddNewCustomerAccessToken = async (user, nino) => {
+        const token = await addCustomerAccessToken(user, nino);
+        return token;
+    };
 
     return {
         handleAddUser,
@@ -131,7 +200,11 @@ const factory = ({
         handleRemoveToken,
         handleValidateNino,
         handleGetSecurityQuestions,
-        handleCheckSecurityAnswers
+        handleCheckSecurityAnswers,
+        handleGetCustomer,
+        handleUpdateClaim,
+        handleAddNewCustomerAccessToken,
+        handleCheckCustomerAccessToken
     }
 };
 

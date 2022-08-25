@@ -1,0 +1,136 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+  
+<header class="custom-header">
+  <span class="account">USER: {{page.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+<h2 id="page-header">{{page.nino}} Details</h2>
+
+<table class="govuk-table">
+  <caption class="govuk-table__caption govuk-table__caption--l">Customer Details for {{page.nino}}</caption>
+  <tbody class="govuk-table__body">
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Full Name</th>
+      <td class="govuk-table__cell">{{page.customerName}} {{page.customerSurname}}</td>
+    </tr>
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Date of Birth</th>
+      <td class="govuk-table__cell">{{page.dob}}</td>
+    </tr>
+    {%if page.deceased%}
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Date of Death</th>
+      <td class="govuk-table__cell">{{page.dod}}</td>
+    </tr>
+    {%endif%}
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">National Insurance</th>
+      <td class="govuk-table__cell">{{page.nino}}</td>
+    </tr>
+    {%if page.claimedAA%}
+    {% set regExp = r/^foo.*/g %}
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Award Level</th>
+      <td class="govuk-table__cell">{%if page.rateCode == 'L'%}Lower Rate{%else%}Higher Rate{%endif%}</td>
+    </tr>
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Claim Start Date</th>
+      <td class="govuk-table__cell">{{page.claimDateStart}}</td>
+    </tr>
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Claim Award</th>
+      <td class="govuk-table__cell">£{{page.awardRate}}</td>
+    </tr>
+    {%else%}
+    <tr class="govuk-table__row">
+      <th scope="row" class="govuk-table__header">Claimed AA</th>
+      <td class="govuk-table__cell">No</td>
+    </tr>
+    {%endif%}
+  </tbody>
+</table>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    <div id="customer-actions-sections" class="govuk-grid-column-full">
+      <h1 id="customer-actions-heading" class="govuk-heading-x1">Customer Actions</h1>
+          <a href='/process-customer/{{page.nino}}'><button class="govuk-button" data-module="govuk-button" type="button">{%if page.claimedAA%}Update Claim{%else%}New Claim{%endif%}</button></a>
+          <a href='/'><button class="govuk-button" data-module="govuk-button" type="button">Exit Screen</button></a>
+    </div>
+  </div>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <style>
+
+    .custom-header {
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+        color: white;
+        position: fixed;
+        top: 1%;
+        right: 16%;
+        display: grid;
+    }
+
+    .signout a {
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .signout a:hover {
+        text-decoration: underline;
+    }
+    
+    #page-header {
+        font: bold 3em/3em "Trebuchet MS", Helvetica, sans-serif;
+        text-decoration: underline;
+        display: inline;
+  }
+
+  {# Customer actions styling here: #}
+
+  #customer-actions-heading {
+    font: bold 2.5em/2.5em "Trebuchet MS", Helvetica, sans-serif;
+    padding: 1px;
+  }
+
+  #customer-action-sections div {
+    display: inline;
+    flex-direction: row;
+    margin-right: 1em;
+  }
+
+  #customer-action-sections div button {
+    height: 3em;
+  }
+
+  .govuk-button {
+    height: 3em;
+    width: 9em;
+    margin-right: 5px;
+  }
+
+  #customer-actions-sections {
+    background-color: #f3f2f1;
+    width: auto;
+    height: auto;
+    padding-left: 10px;
+    border: 1px solid #b1b4b6;
+    margin: 10px;
+  }
+
+
+
+  </style>
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

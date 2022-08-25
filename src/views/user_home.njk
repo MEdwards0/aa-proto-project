@@ -14,10 +14,10 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-half">
-    <div id="customer-actions-sections">
+    <div id="customer-actions-sections" class="govuk-grid-column-full">
       <h1 id="customer-actions-heading" class="govuk-heading-x1">Customer Actions</h1>
-          <a href='validate-nino/process-customer'><button class="govuk-button" data-module="govuk-button" type="button">Process Customer</button></a>
-          <a href='validate-nino/view-customer-data'><button class="govuk-button" data-module="govuk-button" type="button">View Customer Data</button></a>
+          <a href='validate-nino'><button class="govuk-button" data-module="govuk-button" type="button">Process Customer</button></a>
+          {# <a href='validate-nino/view-customer-data'><button class="govuk-button" data-module="govuk-button" type="button">View Customer Data</button></a> #}
     </div>
   </div>
 
@@ -38,6 +38,7 @@
   main {
     display: inline;
   }
+  
   #customer-actions-heading {
     font: bold 2.5em/2.5em "Trebuchet MS", Helvetica, sans-serif;
     padding: 1px;
@@ -88,7 +89,7 @@
   }
 
   .custom-header {
-    font: "Trebuchet MS", Helvetica, sans-serif;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     color: white;
     position: fixed;
     top: 1%;

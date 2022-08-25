@@ -1,4 +1,5 @@
 const database = require('../database');
+const claim = require('../claim');
 
 const handler = () => {
 
@@ -9,6 +10,10 @@ const handler = () => {
             if (req.cookies.token != undefined) {
 
                 res.clearCookie('nino');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
+                res.clearCookie('customerAccessToken');
 
                 const profile = {
                     username: req.cookies.username,
@@ -26,6 +31,7 @@ const handler = () => {
             console.log(error);
             res.clearCookie('token');
             res.clearCookie('username');
+            res.clearCookie('customerAccessToken');
             // res.clearCookie('id');
             res.redirect('/');
         };
@@ -40,8 +46,12 @@ const handler = () => {
             } else {
                 res.clearCookie('token');
                 res.clearCookie('username');
-                res.clearCookie('nino')
-            }
+                res.clearCookie('nino');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
+                res.clearCookie('customerAccessToken');
+            };
 
             if (req.cookies.token == undefined || !result.status) {
                 res.render('login', { error: false });
@@ -95,6 +105,10 @@ const handler = () => {
             res.clearCookie('token');
             res.clearCookie('username');
             res.clearCookie('nino');
+            res.clearCookie('answerOne');
+            res.clearCookie('answerTwo');
+            res.clearCookie('answerThree');
+            res.clearCookie('customerAccessToken');
             res.redirect('/');
         } catch (error) {
             console.log('error');
@@ -120,6 +134,9 @@ const handler = () => {
                 console.log(error);
                 res.clearCookie('token');
                 res.clearCookie('username');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
                 res.redirect('/');
             };
         } else {
@@ -144,6 +161,18 @@ const handler = () => {
                         username: req.cookies.username
                     };
 
+                    const customer = await database.handleGetCustomer(page.nino);
+
+                    if (customer.error) {
+                        page.error = customer.error;
+                        console.log('There was an error getting the customer information');
+                        console.log(customer.errorMessage);
+                    }
+
+                    page.customerName = customer.name;
+                    page.customerSurname = customer.surname;
+                    page.dob = customer.dob;
+
                     if (page.error) {
                         res.render('validate_nino', { page: page });
                     } else {
@@ -159,6 +188,9 @@ const handler = () => {
                 console.log(error);
                 res.clearCookie('token');
                 res.clearCookie('username');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
                 res.redirect('/');
             };
         } else {
@@ -184,6 +216,19 @@ const handler = () => {
 
                     page.error = result.error
 
+                    const customer = await database.handleGetCustomer(page.nino);
+
+                    if (customer.error) {
+                        page.error = customer.error;
+                        console.log('There was an error getting the customer information');
+                        console.log(customer.errorMessage);
+                    }
+
+                    page.customerName = customer.name;
+                    page.customerSurname = customer.surname;
+                    page.dob = customer.dob;
+                    
+
                     if (page.error) {
                         const questions = await database.handleGetSecurityQuestions(page.nino);
                         page.questions = questions.questions;
@@ -192,10 +237,16 @@ const handler = () => {
 
                     } else {
                         // res.clearCookie('nino');
-                        res.cookie('answerOne', req.body.answerOne);
-                        res.cookie('answerTwo', req.body.answerTwo);
-                        res.cookie('answerThree', req.body.answerThree);
-                        res.redirect(`/${page.route}/${page.nino}`);
+
+                        // res.cookie('answerOne', req.body.answerOne);
+                        // res.cookie('answerTwo', req.body.answerTwo);
+                        // res.cookie('answerThree', req.body.answerThree);
+
+                        // Issue new access token for customer information here.
+                        const token = await database.handleAddNewCustomerAccessToken(req.cookies.username, req.cookies.nino);
+                        res.cookie('customerAccessToken', token);
+
+                        res.redirect(`/view-customer-data/${page.nino}`);
                     };
                 }
             } catch (error) {
@@ -203,6 +254,9 @@ const handler = () => {
                 res.clearCookie('token');
                 res.clearCookie('username');
                 res.clearCookie('nino');
+                // res.clearCookie('answerOne');
+                // res.clearCookie('answerTwo');
+                // res.clearCookie('answerThree');
                 res.redirect('/');
             }
         } else {
@@ -235,13 +289,28 @@ const handler = () => {
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
+                // const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
+                const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
                 // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
+                // res.clearCookie('answerOne');
+                // res.clearCookie('answerTwo');
+                // res.clearCookie('answerThree');
+
+                // get customer information for the page rendering here:
+
+                const customer = await database.handleGetCustomer(page.nino);
+
+                if (customer.error) {
+                    console.log('There was an error getting the customer information');
+                    page.error = customer.error;
+                    console.log(customer.errorMessage);
+                }
+
+                page.customerName = customer.name;
+                page.customerSurname = customer.surname;
+                page.dob = customer.dob;
 
                 if(page.error) {
                     res.redirect('/');
@@ -254,6 +323,10 @@ const handler = () => {
                 res.clearCookie('token');
                 res.clearCookie('username');
                 res.clearCookie('nino');
+                res.clearCookie('customerAccessToken')
+                // res.clearCookie('answerOne');
+                // res.clearCookie('answerTwo');
+                // res.clearCookie('answerThree');
                 res.redirect('/');
             };
         } else {
@@ -286,25 +359,121 @@ const handler = () => {
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
-                // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
+                // const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
+                const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
+                // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
+                // res.clearCookie('answerOne');
+                // res.clearCookie('answerTwo');
+                // res.clearCookie('answerThree');
+
+                const customer = await database.handleGetCustomer(page.nino);
+
+                if (customer.error) {
+                    console.log('There was an error getting the customer information');
+                    page.error = customer.error;
+                    console.log(customer.errorMessage);
+                };
+
+                page.customerName = customer.name;
+                page.customerSurname = customer.surname;
+                page.dob = customer.dob;
+                page.dod = customer.dod;
+                page.claimDateStart = customer.claimDateStart;
+                page.claimDateEnd = customer.claimDateEnd;
+                page.awardRate = customer.awardRate;
+                page.claimedAA = customer.claimedAA;
+                page.rateCode = customer.rateCode
 
                 if (page.error) {
                     res.redirect('/');
                 } else {
-                    // res.render('process_customer', { page: page });
-                    res.send('success: render view_customer_data page');
+                    res.render('view_customer_data', {page: page});
+                    // res.send('success: render view_customer_data page');
                 };
             } catch (error) {
                 console.log(error);
                 res.clearCookie('token');
                 res.clearCookie('username');
                 res.clearCookie('nino');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
+                res.redirect('/');
+            };
+        } else {
+            res.redirect('/');
+        }
+    };
+
+    const submitApplication = async (req, res) => {
+        if (req.cookies.token != undefined) {
+            try {
+
+                const page = {
+                    nino: req.cookies.nino,
+                    username: req.cookies.username,
+                    claimMessage: 'none',
+                    error: false
+                }
+
+                // check token validity
+                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
+                result.error ? page.error = true : page.error = page.error;
+
+                // check nino validity
+                const nino = await database.handleValidateNino(req.cookies.nino);
+                // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
+                nino.error ? page.error = true : page.error = page.error;
+
+                // check nobody fiddled with the cookies
+                req.cookies.nino == req.params.nino ? page.error = page.error : page.error = true;
+                // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
+
+                // do claim logic here, returns an object with an error and a claim message, if error is true, there was an error.
+                const application = claim.processClaim(req);
+
+                if (application.error) {
+                    page.error = true;
+                    page.databaseError = false;
+                };
+
+                // Get response message to display to user
+                page.claimMessage = application.message;
+                
+                if (page.error) {
+
+                    res.render('failure_screen', {page: page});
+                } else {
+
+                    const newClaim = {
+                        nino: page.nino,
+                        awardRate: req.body.careLevelSubmit
+                    };
+
+                    // Update cutomer table with claim details.
+                    const response = await database.handleUpdateClaim(newClaim);
+
+                    if (response.error) {
+                        console.log(response.errorMessage);
+                        page.databaseError = response.error;
+                        page.claimMessage = 'There was an error updating the database';
+                        res.render('failure_screen' , {page: page});
+                    } else {
+                        res.render('success_screen', {page: page});
+                    };
+                    
+                };
+            } catch (error) {
+                console.log(error);
+                res.clearCookie('token');
+                res.clearCookie('username');
+                res.clearCookie('nino');
+                res.clearCookie('answerOne');
+                res.clearCookie('answerTwo');
+                res.clearCookie('answerThree');
                 res.redirect('/');
             };
         } else {
@@ -325,7 +494,8 @@ const handler = () => {
         validateNino,
         checkSecurityQuestions,
         processCustomer,
-        viewCustomerData
+        viewCustomerData,
+        submitApplication
     };
 };
 

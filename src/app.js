@@ -7,7 +7,6 @@ require('dotenv').config();
 
 
 const app = express();
-
 const handler = require('./viewHandler');
 
 app.use(express.static(path.join('./public')));
@@ -45,7 +44,7 @@ app.get('/user-home', handler.displayUserHome);
 
 app.get('/log-out', handler.logOut);
 
-app.get('/validate-nino/:route', handler.validateNinoForm);
+app.get('/validate-nino', handler.validateNinoForm);
 
 app.get('/view-customer-data/:nino', handler.viewCustomerData);
 
@@ -69,11 +68,12 @@ app.post('/reset-password', handler.resetPassword);
 
 app.post('/create-user', handler.createUser);
 
-app.post('/validate-nino/:route/security-questions', handler.validateNino);
+app.post('/validate-nino/security-questions', handler.validateNino);
 
-app.post('/validate-nino/:route/security-questions/:nino', handler.checkSecurityQuestions);
+app.post('/validate-nino/security-questions/:nino', handler.checkSecurityQuestions);
 
-// app.post('/validate-nino/:route/security-questions', handler.securityQuestions);
-
+app.post('/process-customer/:nino/submit-application', handler.submitApplication);
 
 module.exports = app;
+
+

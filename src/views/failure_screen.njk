@@ -1,0 +1,62 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+
+<header class="custom-header">
+  <span class="account">USER: {{profile.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+<div id="banner" class="govuk-panel govuk-panel--confirmation">
+  <h1 class="govuk-panel__title">
+    Application Denied
+  </h1>
+  <div class="govuk-panel__body">
+    {%if page.databaseError == false%}The claimant is ineligible for this benefit. {%else%} {{page.claimMessage}} {%endif%}
+  </div>
+</div>
+
+<strong>
+  <span class="govuk-warning-text" id='manual_link'><a href='/view-customer-data/{{page.nino}}'>Click here to go back to user summary screen</a></span>
+</strong>
+
+<style>
+
+  #banner {
+      {# color: red; #}
+      background: red;
+  }
+
+  .custom-header {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    top: 1%;
+    right: 16%;
+    display: grid;
+  }
+
+  .signout a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .signout a:hover {
+    text-decoration: underline;
+  }
+
+  
+
+</style>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

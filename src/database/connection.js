@@ -63,7 +63,7 @@ const setupDatabase = async () => {
 };
 
 async function createDatabase() {
-    const query = `CREATE DATABASE "${process.env.DATABASE}"`;
+    // const query = `CREATE DATABASE "${process.env.DATABASE}"`;
     await setup.query(query);
 };
 
@@ -73,7 +73,7 @@ async function dbConnect(init=false) {
 
     if (init) {
         await setup.connect();
-        console.log(`Connected to the setup database`); 
+        // console.log(`Connected to the setup database`); 
     } else {
         await client.connect();
         console.log(`Connected to ${client.database} on port ${client.port}`);  
@@ -85,7 +85,7 @@ async function dbDisconnect(init=false) {
 
     if (init) {
         await setup.end();
-        console.log(`Disconnected from the setup database`);
+        // console.log(`Disconnected from the setup database`);
     } else {
         await client.end();
         console.log(`Ending connection to ${client.database}.`);
@@ -126,21 +126,23 @@ async function buildSchemaTables() {
     await buildRateCodeTable();
     await buildSecurityQuestionsTable();
     await buildTokenTable();
+    await buildCustomerAccessTokenTable();
 };
 
 const buildSecurityQuestionsTable = async () => {
     // create a table to store security questions and answers using NINO as PF KEY
     const query = `CREATE TABLE IF NOT EXISTS "customerSecurity"
-        (
-            "NINO" character varying(9) NOT NULL,
-            "questionOne" character varying(100) NOT NULL,
-            "answerOne" character varying(30) NOT NULL,
-            "questionTwo" character varying(100) NOT NULL,
-            "answerTwo" character varying(30) NOT NULL,
-            "questionThree" character varying(100) NOT NULL,
-            "answerThree" character varying(30) NOT NULL,
-            CONSTRAINT "customerQuestions_pkey" PRIMARY KEY ("NINO")
-        )`;
+(	
+	"id" SERIAL PRIMARY KEY NOT NULL,
+    "NINO" character varying(9) COLLATE pg_catalog."default" NOT NULL,
+    "questionOne" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "answerOne" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "questionTwo" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "answerTwo" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "questionThree" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "answerThree" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+	CONSTRAINT fk_NINO FOREIGN KEY("NINO") REFERENCES customer("NINO")
+);`;
 
     await client.query(query);
 };
@@ -159,8 +161,9 @@ const buildAdminTable = async () => {
 const buildCustomerTable = async () => {
     // create a table to store customer data
     const query = `CREATE TABLE IF NOT EXISTS "customer"
-        ( 
-        	"NINO" VARCHAR(9) NOT NULL PRIMARY KEY,
+        (   
+            "id" SERIAL PRIMARY KEY NOT NULL,
+        	"NINO" VARCHAR(9) NOT NULL,
          	"fName" VARCHAR(15) NOT NULL,
         	"mName" VARCHAR(15),
         	"lName" VARCHAR(15) NOT NULL,
@@ -170,8 +173,9 @@ const buildCustomerTable = async () => {
         	"rateCode" CHAR NOT NULL DEFAULT 0,
         	"dob" DATE NOT NULL,
         	"dod" DATE,
-        	"claimedAA" BOOLEAN NOT NULL DEFAULT FALSE	
-        )`;
+        	"claimedAA" BOOLEAN NOT NULL DEFAULT FALSE,
+			CONSTRAINT NINO_UNIQUE UNIQUE ("NINO")
+        );`;
     
         await client.query(query);
 };
@@ -187,18 +191,33 @@ const buildRateCodeTable = async () => {
             
             INSERT INTO "rateCode" (code, rate) VALUES ('H', 92.40);
             INSERT INTO "rateCode" (code, rate) VALUES ('L', 61.85);
-            INSERT INTO "rateCode" (code, rate) VALUES ('N', 0);`;
+            INSERT INTO "rateCode" (code, rate) VALUES ('N', 0.00);`;
 
     // first part of the query will run, but if the table is already populate, it will throw an error. Try catch handles this.
     try {
         await client.query(query);
     } catch (error) {
-        if (error.constraint == 'ratecode_pkey') {
-            console.log('Rate code table is already populated');
+        if (!error.constraint == 'ratecode_pkey') {
+            console.log(error);
         };
     }
     
     
+};
+
+const buildCustomerAccessTokenTable = async () => {
+    const query = `CREATE TABLE IF NOT EXISTS "customerAccessToken"
+        (
+            "id" SERIAL PRIMARY KEY,
+            "NINO" VARCHAR(9) NOT NULL,
+            "user" VARCHAR(50) NOT NULL,
+            "token" VARCHAR(50) NOT NULL,
+            CONSTRAINT fk_NINO FOREIGN KEY("NINO") REFERENCES customer("NINO"),
+            CONSTRAINT fk_user FOREIGN KEY("user") REFERENCES "user"("username"),
+            CONSTRAINT customerAccessToken_token_key UNIQUE ("token")
+        )`;
+    
+    await client.query(query);
 };
 
 module.exports = { client, setup, dbConnect, setupDatabase, buildSchemaTables };

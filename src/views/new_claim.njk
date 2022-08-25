@@ -4,15 +4,21 @@
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
 {% endblock %}
 {% block content %}
-<h2>Processing for claimant {{page.nino}}</h2>
+
+<header class="custom-header">
+  <span class="account">USER: {{page.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+<h2>Processing for claimant <span id='nino'>{{page.nino}}<span></h2>
 
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 
-<div class="govuk-form-group" id='start-new-claim-radios'>
+<div class="govuk-form-group aa-claim" id='start-new-claim-radios'>
   <fieldset class="govuk-fieldset">
     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
       <h1 class="govuk-fieldset__heading">
-        Would you like to begin a new claim process?
+        Would you like to begin a new claim?
       </h1>
     </legend>
     <div id="new-claim-hint" class="govuk-hint">
@@ -20,7 +26,7 @@
     </div>
     <div class="govuk-radios" data-module="govuk-radios">
       <div class="govuk-radios__item">
-        <input class="govuk-radios__input" id="new-claim-1" name="new-claim" type="radio" value="yes">
+        <input class="govuk-radios__input" id="new-claim-1" name="new-claim" type="radio" value="Yes">
         <label class="govuk-label govuk-radios__label" for="new-claim">
           Yes
         </label>
@@ -29,7 +35,7 @@
         </div>
       </div>
       <div class="govuk-radios__item">
-        <input class="govuk-radios__input" id="new-claim-2" name="new-claim" type="radio" value="no">
+        <input class="govuk-radios__input" id="new-claim-2" name="new-claim" type="radio" value="No">
         <label class="govuk-label govuk-radios__label" for="new-claim">
           No
         </label>
@@ -44,44 +50,13 @@
 
 {# {% from "govuk/components/button/macro.njk" import govukButton %} #}
 
-<div id='radio-next-button'>
+<div id='radio-next-button' class="aa-claim button-div">
     <button class="govuk-button" data-module="govuk-button" id='start-claim'>
          Next
     </button>
 </div>
 
-
-{# <div class="govuk-form-group" id="are-you-cool-fields" hidden>
-  <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
-    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-      <h1 class="govuk-fieldset__heading">
-        Are you cool?
-      </h1>
-    </legend>
-    <div id="waste-hint" class="govuk-hint">
-      Select all that apply.
-    </div>
-    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="coolness" name="coolness" type="checkbox" value="true">
-        <label class="govuk-label govuk-checkboxes__label" for="coolness">
-          Yes
-        </label>
-      </div>
-    </div>
-    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="coolness" name="coolness" type="checkbox" value="false">
-        <label class="govuk-label govuk-checkboxes__label" for="coolness">
-          No
-        </label>
-      </div>
-    </div>
-
-  </fieldset>
-</div> #}
-
-<div class="govuk-form-group" id='other-benefit-radio-div' hidden>
+<div class="govuk-form-group aa-claim" id='other-benefit-radio-div' hidden>
   <fieldset class="govuk-fieldset">
     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
       <h1 class="govuk-fieldset__heading">
@@ -98,6 +73,9 @@
           Yes
         </label>
       </div>
+      <div id="other-benefit-error" class="govuk-error-message aa-claim" hidden>
+          <span>If the claimant is claiming another benefit, they will not be eligible for Attendance Allowance.</span>
+      </div>
       <div class="govuk-radios__item">
         <input class="govuk-radios__input" id="other-benefit-no" name="other-benefit" type="radio" value="No">
         <label class="govuk-label govuk-radios__label" for="other-benefit">
@@ -109,19 +87,19 @@
   </fieldset>
 </div>
 
-<div id='back-to-new-claim-div' hidden>
-    <button class="govuk-button" data-module="govuk-button" id='back-to-new-claim-button'>
+<div id='back-to-new-claim-div' class="aa-claim button-div" hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-to-new-claim-button'>
          Back
     </button>
 </div>
 
-<div id='other-benefit-button-div' hidden>
+<div id='other-benefit-button-div' class="aa-claim button-div" hidden>
     <button class="govuk-button" data-module="govuk-button" id='other-benefit-button'>
         Next
     </button>
 </div>
 
-<div class="govuk-form-group" id='pension-age-radio-div' hidden>
+<div class="govuk-form-group aa-claim" id='pension-age-radio-div' hidden>
   <fieldset class="govuk-fieldset">
     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
       <h1 class="govuk-fieldset__heading">
@@ -143,71 +121,943 @@
         <label class="govuk-label govuk-radios__label" for="pension-age">
           No
         </label>
-        <div id="pension-age-no" class="govuk-error-message" hidden>
-            <span>You must be at state pension age to be eligible for Attendance Allowance.</span>
-        </div>
+      </div>
+      <div id="pension-age-error" class="govuk-error-message aa-claim" hidden>
+          <span>They must be at state pension age to be eligible for Attendance Allowance.</span>
       </div>
     </div>
 
   </fieldset>
 </div>
 
-<div id='back-other-benefit-div' hidden>
-    <button class="govuk-button" data-module="govuk-button" id='back-to-other-benefit-button'>
+<div class="aa-claim button-div" id='back-other-benefit-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-to-other-benefit-button'>
          Back
     </button>
 </div>
 
-<div id='pension-age-button-div' hidden>
-    <button class="govuk-button" data-module="govuk-button" id='pension-age-button'>
+<div class="aa-claim button-div" id='pension-age-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='pension-age-button'>
         Next
     </button>
 </div>
+
+<div class="govuk-form-group aa-claim" id='physical-disability-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Do you have a physical disability?
+      </h1>
+    </legend>
+    <div id="physical-disability-hint" class="govuk-hint">
+        <span>This includes sensory disabilities such as blindness.</span>
+    </div>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="physical-disability-yes" name="physical-disability" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="physical-disability">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="physical-disability-no" name="physical-disability" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="physical-disability">
+          No
+        </label>
+        {# <div id="physical-disability-error" class="govuk-error-message" hidden>
+            <span>You must have either a physical or mental disability to be eligible for Attendance Allowance.</span>
+        </div> #}
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-pension-age-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-pension-age-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='physical-disability-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='physical-disability-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='mental-disability-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Do you have a mental disability?
+      </h1>
+    </legend>
+    <div id="mental-disability-hint" class="govuk-hint">
+        <span>This includes learning disabilities.</span>
+    </div>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="mental-disability-yes" name="mental-disability" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="mental-disability">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="mental-disability-no" name="mental-disability" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="mental-disability">
+          No
+        </label>
+      </div>
+      <div id="mental-disability-error" class="govuk-error-message aa-claim" hidden>
+            <span>They must have either a physical or mental disability to be eligible for Attendance Allowance.</span>
+        </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-physical-disability-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-physical-disability-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='mental-disability-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='mental-disability-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='severe-disability-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Is your disability severe enough for you to need help caring for yourself or someone to supervise you, for your own or someone elses safety?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="severe-disability-yes" name="severe-disability" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="severe-disability">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="severe-disability-no" name="severe-disability" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="severe-disability">
+          No
+        </label>
+      </div>
+      <div id="severe-disability-error" class="govuk-error-message aa-claim" hidden>
+            <span>In order to be eligible for Attendance Allowance, their disability will require some sort of supervision.</span>
+        </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-mental-disability-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-mental-disability-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='severe-disability-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='severe-disability-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='supervision-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Have you needed that help for at least 6 months (unless you might have 6 months or less to live)?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="supervision-yes" name="supervision" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="supervision">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="supervision-no" name="supervision" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="supervision">
+          No
+        </label>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-severe-disability-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-severe-disability-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='supervision-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='supervision-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='six-months-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Do you have 6 months or less to live?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="six-months-yes" name="six-months" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="six-months">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="six-months-no" name="six-months" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="six-months">
+          No
+        </label>
+      </div>
+      <div id="six-months-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a no condition on the last question to show up correctly #}
+            <span>As the previous selection was no, the claimant can only qualify for Attendance allowance if they have 6 months or less to live.</span>
+        </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-supervision-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-supervision-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='six-months-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='six-months-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='claiming-within-gb-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you making this claim from within Great Britain?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="claiming-within-gb-yes" name="claiming-within-gb" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="claiming-within-gb">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="claiming-within-gb-no" name="claiming-within-gb" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="claiming-within-gb">
+          No
+        </label>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-six-months-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-six-months-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='claiming-within-gb-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='claiming-within-gb-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='armed-forces-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Have you, or a family member been a member of the Armed Forces?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="armed-forces-yes" name="armed-forces" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="armed-forces">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="armed-forces-no" name="armed-forces" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="armed-forces">
+          No
+        </label>
+      </div>
+      <div id="armed-forces-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a no condition on the last question to show up correctly #}
+            <span>The claimant can only qualify for Attendance allowance if they have been in, or are related to someone who has been a member of the armed forces.</span>
+        </div>
+    </div>
+
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-claiming-within-gb-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-claiming-within-gb-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='armed-forces-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='armed-forces-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='uk-duration-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Have you been in Great Britain for at least 2 of the last 3 years?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="uk-duration-yes" name="uk-duration" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="uk-duration">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="uk-duration-no" name="uk-duration" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="uk-duration">
+          No
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-armed-forces-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-armed-forces-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='uk-duration-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='uk-duration-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='refugee-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you a refugee, or have a humanitarian protection status?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="refugee-yes" name="refugee" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="refugee">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="refugee-no" name="refugee" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="refugee">
+          No
+        </label>
+      </div>
+    </div>
+    <div id="refugee-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a no condition on the last question to show up correctly #}
+            <span>As the claimant has not been in GB for the last 2 of 3 years, they will not qualify for Attendance Allowance.</span>
+        </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-uk-duration-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-uk-duration-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='refugee-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='refugee-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='habitual-resident-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you a habitual resident of the UK?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="habitual-resident-yes" name="habitual-resident" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="habitual-resident">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="habitual-resident-no" name="habitual-resident" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="habitual-resident">
+          No
+        </label>
+      </div>
+    </div>
+    <div id="habitual-resident-error" class="govuk-error-message aa-claim" hidden>
+            <span>The claimant must be a habitual resident of the uk to be eligible for Attendance Allowance.</span>
+        </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-refugee-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-refugee-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='habitual-resident-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='habitual-resident-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='immigration-control-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you subject to immigration control?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="immigration-control-yes" name="immigration-control" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="immigration-control">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="immigration-control-no" name="immigration-control" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="immigration-control">
+          No
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-habitual-resident-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-habitual-resident-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='immigration-control-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='immigration-control-button'>
+        Next
+    </button>
+</div>
+
+{# Only show this field if the previous answer was no? #}
+<div class="govuk-form-group aa-claim" id='sponsored-immigrant-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you a sponsored immigrant?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="sponsored-immigrant-yes" name="sponsored-immigrant" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="sponsored-immigrant">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="sponsored-immigrant-no" name="sponsored-immigrant" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="sponsored-immigrant">
+          No
+        </label>
+        
+      </div>
+    </div>
+    <div id="sponsored-immigrant-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a yes condition on the last question to show up correctly #}
+            <span>Due to being subject to immigration control, without sponsorship the claimant will not be eligible for Attendance Allowance.</span>
+        </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-immigration-control-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-immigration-control-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='sponsored-immigrant-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='sponsored-immigrant-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='in-care-home-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Are you currently in a care home?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="in-care-home-yes" name="in-care-home" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="in-care-home">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="in-care-home-no" name="in-care-home" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="in-care-home">
+          No
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-sponsored-immigrant-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-sponsored-immigrant-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='in-care-home-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='in-care-home-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='care-home-costs-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        If you are in a care home, are you covering the costs of the care home yourself?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="care-home-costs-yes" name="care-home-costs" type="radio" value="Yes">
+        <label class="govuk-label govuk-radios__label" for="care-home-costs">
+          Yes
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="care-home-costs-no" name="care-home-costs" type="radio" value="No">
+        <label class="govuk-label govuk-radios__label" for="care-home-costs">
+          No
+        </label>
+      </div>
+      <div id="care-home-costs-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a yes condition on the last question to show up correctly #}
+            <span>As the claimant is in a care home and the costs are covered, they will not be eligible for Attendance Allowance.</span>
+        </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="care-home-costs-na" name="care-home-costs" type="radio" value="NA">
+        <label class="govuk-label govuk-radios__label" for="care-home-costs">
+          Not Applicable
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-in-care-home-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-in-care-home-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='care-home-costs-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='care-home-costs-button'>
+        Next
+    </button>
+</div>
+
+<div class="govuk-form-group aa-claim" id='care-level-radio-div' hidden>
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        What level of care is needed for your circumstances?
+      </h1>
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="care-level-hr" name="care-level" type="radio" value="L">
+        <label class="govuk-label govuk-radios__label" for="care-level">
+          Frequent help or constant supervision during the day, or supervision at night.
+        </label>
+      </div>
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="care-level-lr" name="care-level" type="radio" value="H">
+        <label class="govuk-label govuk-radios__label" for="care-level">
+          Help or supervision throughout both day and night, or a medical professional said you might have 6 months or less to live.
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+
+<div class="aa-claim button-div" id='back-care-home-costs-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-care-home-costs-button'>
+         Back
+    </button>
+</div>
+
+<div class="aa-claim button-div" id='care-level-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='care-level-button'>
+        Summary
+    </button>
+</div>
+
+<form class="aa-claim" id="input-form" method="POST" action="/process-customer/{{page.nino}}/submit-application" hidden>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Full Name
+            </dt>
+            <dd class="govuk-summary-list__value">
+            {{page.customerName}} {{page.customerSurname}}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Date of birth
+            </dt>
+            <dd class="govuk-summary-list__value">
+            {{page.dob}}
+            </dd>
+        </div>
+        {# other benefit data here #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you currently receiving any other benefit?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="other-benefit-submit" name="otherBenefitSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-other-benefit'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# state pension age data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you of state pension age?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="pension-age-submit" name="pensionAgeSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-pension-age'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# physical disability data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Do you have a physical disability?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="physical-disability-submit" name="physicalDisabilitySubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-physical-disability'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# mental disability data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Do you have a mental disability?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="mental-disability-submit" name="mentalDisabilitySubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-mental-disability'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# severe disability data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Is your disability severe enough for you to need help caring for yourself or someone to supervise you, for your own or someone elses safety?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="severe-disability-submit" name="severeDisabilitySubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-severe-disability'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# needed help for the last 6 months data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Have you needed that help for at least 6 months (unless you might have 6 months or less to live)?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="supervision-submit" name="supervisionSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-supervision'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# 6 months or less to live data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Do you have 6 months or less to live?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="six-months-submit" name="sixMonthsSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-six-months'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# are you based in the uk data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you making this claim from within Great Britain?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="claiming-within-gb-submit" name="claimingWithinGbSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-claiming-within-gb'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# armed forces member data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Have you or a family member been a member of the armed forces?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="armed-forces-submit" name="armedForcesSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-armed-forces'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# been in gb last 2/3 years data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Have you been in Great Britain for at least 2 of the last 3 years?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="uk-duration-submit" name="ukDurationSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-uk-duration'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# refugee or humanitarian protection status data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you a refugee, or have a humanitarian protection status?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="refugee-submit" name="refugeeSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-refugee'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# habitual resident of the uk #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you a habitual resident of the UK?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="habitual-resident-submit" name="habitualResidentSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-habitual-resident'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# immigration control data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you subject to immigration control?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="immigration-control-submit" name="immigrationControlSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-immigration-control'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# sponsored immigrant data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you a sponsored immigrant?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="sponsored-immigrant-submit" name="sponsoredImmigrantSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-sponsored-immigrant'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# currently in care home data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Are you currently in a care home?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="in-care-home-submit" name="inCareHomeSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-in-care-home'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# care gome costs data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                If you are in a care home, are you covering the costs of the care home yourself?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="care-home-costs-submit" name="careHomeCostsSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-care-home-costs'>
+                Change
+              </a>
+            </dd>
+        </div>
+        {# level of care needed data #}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                What level of care is needed for you circumstances?
+            </dt>
+            <dd class="govuk-summary-list__value">
+              <input id="care-level-submit" name="careLevelSubmit" value="" readonly>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link aa-claim" id='change-care-level'>
+                Change
+              </a>
+            </dd>
+        </div>
+    </dl>
+
+  <div class="aa-claim button-div" id='back-care-level-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='back-care-level-button' type="button">
+         Back
+    </button>
+  </div>
+
+  <div class="aa-claim button-div" id='input-form-button-div' hidden>
+    <button class="govuk-button aa-claim" data-module="govuk-button" id='submit-form-button' type="submit">
+        Submit
+    </button>
+  </div>
+</form>
+
+
 
 {% endblock %}
 {% block bodyEnd %}
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
-  <script src="styles/all.js"></script>
+  <script src="/styles/all.js"></script>
 
   <style>
     * {
         font-family: "Trebuchet MS", Helvetica, sans-serif;
     }
-  </style>
 
-  <script>
-    const startClaimButton = document.getElementById('start-claim');
-
-    function startClaimNext() {
-        const radioOption = document.querySelector('input[name="new-claim"]:checked');
-        if (radioOption.value == 'yes') {
-            button.style.display = 'none';
-            document.getElementById('start-new-claim-radios').style.display = 'none';
-            document.getElementById('radio-next-button').style.display = 'none';
-            document.getElementById('back-to-new-claim-div').style.display = 'block';
-            document.getElementById('other-benefit-radio-div').style.display = 'block';
-
-        } else {
-            window.location.href = '/';
-        };
+    #input-form-button-div {
+      display: inline;
     }
 
-    startClaimButton.addEventListener('click', startClaimNext);
+    .button-div {
+      margin-top: 20px;
+    }
 
-    const coolButton = document.getElementById('cool-submit');
+    .govuk-radios__item {
+      margin-top: 40px;
+      margin-bottom: 0px;
+    }
 
-    {# function getOtherBenefitChoice() {
-        const option = document.querySelector('input[name="other-benefit"]:checked');
+    .govuk-error-message {
+      margin: none;
+      position: absolute;
+    }
 
-        if(option.value == 'Yes') {
+    .custom-header {
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      color: white;
+      position: fixed;
+      top: 1%;
+      right: 16%;
+      display: grid;
+    }
 
-        }
-    } #}
+    .signout a {
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+    }
 
+    .signout a:hover {
+      text-decoration: underline;
+    }
+    
+  </style>
 
-
-    coolButton.addEventListener('click', getCheckboxValues);
-  </script>
+  <script src="/styles/new_claim.js"></script>
   <script>window.GOVUKFrontend.initAll()</script>
 {% endblock %}

@@ -1,9 +1,18 @@
 const { client } = require('./connection');
-const { encryptPassword, comparePassword } = require('../hash/passwordModel');
+const { encryptInput, checkEncryption } = require('../hash/passwordModel');
+
+const convertTimeDDMMYYYY = (date) => {
+    const convertDate = new Date(date);
+    const day = convertDate.getDate();
+    const month = convertDate.getMonth() + 1;
+    const year = convertDate.getFullYear();
+
+    return `${day}/${month}/${year}`;
+}
 
 const addUser = async (username, password) => {
     try {
-        const hash = await encryptPassword(password);
+        const hash = await encryptInput(password);
         await client.query(`INSERT INTO "user" (username, password) VALUES ('${username}', '${hash}')`);
         // const result = await client.query(`SELECT * FROM "user" WHERE username = '${username}'`);
         const result = await client.query(`SELECT id FROM "user" WHERE username = '${username}'`);
@@ -56,7 +65,7 @@ const getUser = async (username) => {
 }
 
 const checkPassword = async (input, hash) => {
-    const result = await comparePassword(input, hash);
+    const result = await checkEncryption(input, hash);
     if (result) {
         return {
             status: result,
@@ -126,7 +135,7 @@ const findNino = async (nino) => {
 const getSecurityQuestions = async (nino) => {
     try {
     const query = `SELECT "NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree"
-	FROM public."customerSecurity" WHERE "NINO" = '${nino}'`;
+	FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
 
     const result = await client.query(query);
     return result;
@@ -137,7 +146,7 @@ const getSecurityQuestions = async (nino) => {
 
 const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
     try {
-        const query = `SELECT "answerOne", "answerTwo", "answerThree" FROM public."customerSecurity" WHERE "NINO" = '${nino}'`;
+        const query = `SELECT "answerOne", "answerTwo", "answerThree" FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
         const answers = await client.query(query);
         if (answers.rows[0].answerOne == answerOne && answers.rows[0].answerTwo == answerTwo && answers.rows[0].answerThree == answerThree) {
             return {
@@ -152,7 +161,72 @@ const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => 
     } catch (error) {
         console.log(error);
     }
-}
+};
+
+const getCustomer = async (nino) => {
+    try {
+        const query = `SELECT * FROM "customer" WHERE "NINO" = '${nino}'`;
+        const result = await client.query(query);
+
+        return {
+            name: result.rows[0].fName,
+            middleName: result.rows[0].mName,
+            surname: result.rows[0].lName,
+            deceased: result.rows[0].deceased,
+            dob: convertTimeDDMMYYYY(result.rows[0].dob),
+            dod: convertTimeDDMMYYYY(result.rows[0].dod),
+            nino: result.rows[0].NINO,
+            claimDateStart: convertTimeDDMMYYYY(result.rows[0].claimDateStart),
+            claimDateEnd: convertTimeDDMMYYYY(result.rows[0].claimDateEnd),
+            rateCode: result.rows[0].rateCode,
+            claimedAA: result.rows[0].claimedAA,
+            error: false
+        }
+    } catch (error) {
+        return {
+            error: true,
+            errorMessage: error
+        }
+    }
+};
+
+const getAward = async (nino) => {
+    try {
+        let query = `SELECT "rateCode" FROM "customer" WHERE "NINO" = '${nino}'`;
+        const result = await client.query(query);
+
+        query = `SELECT "rate" FROM "rateCode" WHERE "code" = '${result.rows[0].rateCode}'`;
+        const rate = await client.query(query);
+
+        return {
+            awardRate: rate.rows[0].rate,
+            error: false
+        };
+
+    } catch (error) {
+
+        return {
+            error: true,
+            errorMessage: error
+        };
+    };
+};
+
+const addClaim = async (object) => {
+    try {
+        const query = `UPDATE "customer" SET "claimDateStart"=NOW(), "rateCode"='${object.awardRate}', "claimedAA"='true' WHERE "NINO"='${object.nino}'`;
+        await client.query(query);
+
+        return {
+            error: false,
+        }
+    } catch (error) {
+        return {
+            error: true,
+            errorMessage: error
+        }
+    };
+};
 
 
 // const addCustomer = async ({ customer }) => {
@@ -171,6 +245,98 @@ const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => 
 
 // };
 
+const addCustomerAccessToken = async (user, nino) => {
+
+    // Delete any entries where the user already has a token
+
+    try {
+        const query = `DELETE FROM "customerAccessToken" WHERE "user" = '${user}'`;
+        await client.query(query);
+    } catch (error) {
+        console.log(error);
+    };
+
+    // Delete any existing token for the customer 
+
+    try {
+        const query = `DELETE FROM "customerAccessToken" WHERE "NINO" = '${nino}'`;
+        await client.query(query);
+    } catch (error) {
+        console.log(error);
+    };
+
+    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const query = `INSERT INTO "customerAccessToken" ("token", "user", "NINO") VALUES ('${token}', '${user}', '${nino}')`;
+    await client.query(query);
+    return token;
+};
+
+const checkCustomerAccessToken = async (token, user, nino) => {
+    // If there is an error, set error to true and return a message. Else, return access token.
+
+    // Return the token for the user and the customer.
+
+    try {
+        const query = `SELECT * FROM "customerAccessToken" WHERE "token" = '${token}' AND "user" = '${user}' AND "NINO" = '${nino}'`;
+        const result = await client.query(query);
+
+        if (result.rows[0] == undefined) {
+            return {
+                error: true,
+                errorMessage: 'Access token could not be found.'
+            }
+        };
+
+        return {
+            error: false,
+            token: result.rows[0].token,
+            id: result.rows[0].user_id,
+            user: result.rows[0].user_name
+        };
+
+    } catch (error) {
+
+        return {
+            error: true,
+            errorMessage: error
+        };
+    }
+    
+};
+
+const deleteCustomerAccessToken = async (token) => {
+
+    try {
+        const query = `DELETE FROM "customerAccessToken" WHERE TOKEN = '${token}'`;
+        await client.query(query);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const verifyCustomerAccessToken = async (token) => {
+    try {
+        const query = `SELECT * WHERE "token" = '${token}'`;
+        const result = await client.query(query);
+
+        if (result.rows[0].token == token) {
+            return {
+                error: false
+            };
+        };
+
+        return {
+            error: true
+        };
+
+        
+
+    } catch (error) {
+        return {
+            error: true
+        }
+    }
+};
 
 
 module.exports = {
@@ -185,5 +351,12 @@ module.exports = {
     deleteUnusedTokens,
     findNino,
     getSecurityQuestions,
-    checkSecurityAnswers
+    checkSecurityAnswers,
+    getCustomer,
+    getAward,
+    addClaim,
+    addCustomerAccessToken,
+    checkCustomerAccessToken,
+    deleteCustomerAccessToken,
+    verifyCustomerAccessToken
 };

@@ -22,7 +22,7 @@
   <button class="govuk-button" data-module="govuk-button" id="login" type="submit">Login</button> #}
 
   <h1 class="govuk-heading-l">Please enter the customer's NINO</h1>
-<form id='loginForm' class="govuk-label--l" action='/validate-nino/{{page.route}}/security-questions' method="POST">
+<form id='loginForm' class="govuk-label--l" action='/validate-nino/security-questions' method="POST">
   <input class="govuk-input govuk-input--width-20" id='nino'type="text" name="nino" placeholder="" required="required">
 </br>
 </br>
@@ -46,7 +46,7 @@
 
 <style>
   .custom-header {
-    font: "Trebuchet MS", Helvetica, sans-serif;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     color: white;
     position: fixed;
     top: 1%;

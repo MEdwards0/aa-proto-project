@@ -1,12 +1,12 @@
 const encrypt = require('bcrypt');
 
-const encryptPassword = (password) => {
+const encryptInput = (input) => {
     const saltRounds = 10;
-    return encrypt.hash(password, saltRounds);
+    return encrypt.hash(input, saltRounds);
 }
 
-const comparePassword = (password, hash) => {
-    return encrypt.compare(password, hash);
+const checkEncryption = (input, hash) => {
+    return encrypt.compare(input, hash);
 }
 
-module.exports = {encryptPassword, comparePassword};
+module.exports = {encryptInput, checkEncryption};
