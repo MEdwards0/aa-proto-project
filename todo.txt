@@ -1,6 +1,13 @@
-- encrypt secret answer inputs and store in database.
 - add breadcrumbs to new claim screen.
+
 - add create an account, admin function to make pending accounts active.
-- update program to use classes in the program.
+    - add table column containing activated account bool.
+
+- use sessions instead of cookies: will require a large overhaul in places
+
+- update program to use classes.
+    - use session id as class name?
+
 - move dot-env to a config file that takes in dotenv and export from that file.
-- add a way to add customers to the system, allowing a drop down menu for security answers.
+
+- tidy up files

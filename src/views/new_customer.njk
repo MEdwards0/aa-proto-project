@@ -1,0 +1,83 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+  <h1 class="govuk-heading-xl">Create Account</h1>
+  {%if page.error%} <h2 id='error'>There was an error.</h2> {%endif%}
+<form id='loginForm' class="govuk-label--l" action='add-customer-security' method="POST">
+<h3 class="govuk-heading-l">Customer National Insurance</h3>
+  <input class="govuk-input govuk-input--width-20" id='nino'type="text" name="nino" placeholder="" required="required">
+</br>
+</br>
+<h3 class="govuk-heading-l">First Name</h3>
+<input class="govuk-input govuk-input--width-20" type="text" name="fName" placeholder="" required="required">
+</br>
+</br>
+<h3 class="govuk-heading-l">Middle Name (optional)</h3>
+<input class="govuk-input govuk-input--width-20" type="text" name="mName" placeholder="">
+</br>
+</br>
+<h3 class="govuk-heading-l">Last Name</h3>
+<input class="govuk-input govuk-input--width-20" type="text" name="lName" placeholder="" required="required">
+</br>
+</br>
+
+<div class="govuk-form-group">
+  <fieldset class="govuk-fieldset" role="group" aria-describedby="dob-issued-hint">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+      <h1 class="govuk-fieldset__heading">
+        Birthday
+      </h1>
+    </legend>
+    <div id="dob-issued-hint" class="govuk-hint">
+      For example, 27 3 1971
+    </div>
+    <div class="govuk-date-input" id="dob-issued">
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-date-input__label" for="dob-issued-day">
+            Day
+          </label>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-day" name="dobDay" type="text" inputmode="numeric" required>
+        </div>
+      </div>
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-date-input__label" for="dob-issued-month">
+            Month
+          </label>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-month" name="dobMonth" type="text" inputmode="numeric" required>
+        </div>
+      </div>
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-date-input__label" for="dob-issued-year">
+            Year
+          </label>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="dob-issued-year" name="dobYear" type="text" inputmode="numeric" required>
+        </div>
+      </div>
+    </div>
+
+  </fieldset>
+</div>
+</br>
+</br>
+<button class="govuk-button" data-module="govuk-button" id="login" type="submit">Continue</button>
+</form>
+
+<style>
+    #error {
+        color: red;
+    }
+</style>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

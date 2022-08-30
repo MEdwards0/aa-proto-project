@@ -3,15 +3,22 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const session =  require('express-session');
 require('dotenv').config();
 
 
 const app = express();
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: false,
+}))
 const handler = require('./viewHandler');
 
 app.use(express.static(path.join('./public')));
 app.use('controllers', express.static(path.join(__dirname, './controllers')));
 app.use(cookieParser());
+
 
 // body-parser allow us to parse the body of the request.
 app.use(bodyParser.urlencoded(({ extended: false })));
@@ -50,6 +57,8 @@ app.get('/view-customer-data/:nino', handler.viewCustomerData);
 
 app.get('/process-customer/:nino', handler.processCustomer);
 
+app.get('/add-customer', handler.addCustomerForm);
+
 // DEV
 
 app.get('/clearCookies', (req, res) => {
@@ -73,6 +82,10 @@ app.post('/validate-nino/security-questions', handler.validateNino);
 app.post('/validate-nino/security-questions/:nino', handler.checkSecurityQuestions);
 
 app.post('/process-customer/:nino/submit-application', handler.submitApplication);
+
+app.post('/add-customer-security', handler.addCustomerSecurityForm);
+
+app.post('/add-customer-submit', handler.addCustomerSubmit)
 
 module.exports = app;
 

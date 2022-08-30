@@ -4,7 +4,6 @@ const claim = require('../claim');
 const handler = () => {
 
     const displayUserHome = async (req, res) => {
-
         try {
 
             if (req.cookies.token != undefined) {
@@ -134,9 +133,6 @@ const handler = () => {
                 console.log(error);
                 res.clearCookie('token');
                 res.clearCookie('username');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
                 res.redirect('/');
             };
         } else {
@@ -214,7 +210,7 @@ const handler = () => {
 
                     const result = await database.handleCheckSecurityAnswers(req.cookies.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
 
-                    page.error = result.error
+                    page.error = result.error;
 
                     const customer = await database.handleGetCustomer(page.nino);
 
@@ -227,7 +223,6 @@ const handler = () => {
                     page.customerName = customer.name;
                     page.customerSurname = customer.surname;
                     page.dob = customer.dob;
-                    
 
                     if (page.error) {
                         const questions = await database.handleGetSecurityQuestions(page.nino);
@@ -273,7 +268,7 @@ const handler = () => {
                     username: req.cookies.username,
                     error: false
                 }
-                
+
                 // check token validity
                 const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
@@ -289,7 +284,6 @@ const handler = () => {
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                // const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
                 const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
                 // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
@@ -312,7 +306,7 @@ const handler = () => {
                 page.customerSurname = customer.surname;
                 page.dob = customer.dob;
 
-                if(page.error) {
+                if (page.error) {
                     res.redirect('/');
                 } else {
                     res.render('new_claim', { page: page });
@@ -359,7 +353,6 @@ const handler = () => {
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                // const security = await database.handleCheckSecurityAnswers(req.params.nino, req.cookies.answerOne, req.cookies.answerTwo, req.cookies.answerThree);
                 const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
                 // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
@@ -389,7 +382,7 @@ const handler = () => {
                 if (page.error) {
                     res.redirect('/');
                 } else {
-                    res.render('view_customer_data', {page: page});
+                    res.render('view_customer_data', { page: page });
                     // res.send('success: render view_customer_data page');
                 };
             } catch (error) {
@@ -442,10 +435,10 @@ const handler = () => {
 
                 // Get response message to display to user
                 page.claimMessage = application.message;
-                
+
                 if (page.error) {
 
-                    res.render('failure_screen', {page: page});
+                    res.render('failure_screen', { page: page });
                 } else {
 
                     const newClaim = {
@@ -460,11 +453,11 @@ const handler = () => {
                         console.log(response.errorMessage);
                         page.databaseError = response.error;
                         page.claimMessage = 'There was an error updating the database';
-                        res.render('failure_screen' , {page: page});
+                        res.render('failure_screen', { page: page });
                     } else {
-                        res.render('success_screen', {page: page});
+                        res.render('success_screen', { page: page });
                     };
-                    
+
                 };
             } catch (error) {
                 console.log(error);
@@ -478,6 +471,79 @@ const handler = () => {
             };
         } else {
             res.redirect('/');
+        }
+    };
+
+    const addCustomerForm = async (req, res) => {
+        const page = {
+            error: false
+        };
+
+        res.render('new_customer', { page: page });
+    };
+
+    const addCustomerSecurityForm = async (req, res) => {
+
+        const dob = new Date(req.body.dobYear, Number(req.body.dobMonth) - 1, req.body.dobDay);
+
+        const page = {
+            fName: req.body.fName,
+            mName: req.body.mName || null,
+            lName: req.body.lName,
+            dob: dob,
+            nino: req.body.nino
+        };
+
+        const result = await database.handleValidateNino(req.body.nino);
+
+        // Validate nino length
+        
+        if (page.nino.length != 9) {
+            result.message = 'wrong nino length';
+        }
+
+        // We want result.error to be true, so we know that there is not a nino in the db and a message so it wasnt because of another error.
+        if (result.error && result.message == 'undefined') {
+            req.session.nino = req.body.nino;
+            req.session.fName = page.fName;
+            req.session.lName = page.lName;
+            req.session.dob = page.dob;
+
+            res.render('new_customer_security', { page: page });
+
+        } else {
+            page.error = true;
+            res.render('new_customer', { page: page });
+        };
+    };
+
+    const addCustomerSubmit = async (req, res) => {
+        const result = await database.handleValidateNino(req.session.nino);
+
+        // Any error will result in a true condition. If the db is broken for instance.
+        if (result.error && result.message == 'undefined') {
+
+            const customer = {
+                NINO: req.session.nino,
+                fName: req.session.fName,
+                mName: req.session.mName || null,
+                lName: req.session.lName,
+                dob: req.session.dob,
+                questionOne: req.body.questionOne,
+                questionTwo: req.body.questionTwo,
+                questionThree: req.body.questionThree,
+                answerOne: req.body.answerOne,
+                answerTwo: req.body.answerTwo,
+                answerThree: req.body.answerThree
+            };
+
+            const result = await database.handleAddNewCustomer(customer)
+
+            if (!result.error) {
+                res.render('confirm_user_created');
+            } else {
+                res.send('error creating a customer.', result.errorMessage)
+            }
         }
     };
 
@@ -495,12 +561,13 @@ const handler = () => {
         checkSecurityQuestions,
         processCustomer,
         viewCustomerData,
-        submitApplication
+        submitApplication,
+        addCustomerForm,
+        addCustomerSecurityForm,
+        addCustomerSubmit
     };
 };
 
 module.exports = handler();
 
 // TODO: Bundle view logic into separate file that takes in req and res parameters accordingly to neaten up this file.
-
-

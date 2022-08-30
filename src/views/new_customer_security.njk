@@ -1,0 +1,77 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+  <h1 class="govuk-heading-xl">{{page.nino}} Security Questions</h1>
+<form id='loginForm' class="govuk-label--l" action='add-customer-submit' method="POST">
+
+<h3 class="govuk-heading-l">Select your security questions<h3>
+
+
+<div class="govuk-form-group">
+  <label class="govuk-label" for="question 1">
+    Security Question 1
+  </label>
+  <div id="subject-hint" class="govuk-hint">
+    Choose your first security question
+  </div>
+  <select class="govuk-select" id="subject" name="questionOne" aria-describedby="subject-hint">
+    <option value="What was the name of your first school?" selected>What was the name of your first school?</option>
+    <option value="What city were you born in?">What city were you born in?</option>
+    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+    <option value="What is the name of your first pet?">What is the name of your first pet?</option>
+    <option value="What is the make of your first car?">What is the make of your first car?</option>
+  </select>
+</div>
+<h4 class="govuk-heading-m">Answer</h4>
+<input class="govuk-input govuk-input--width-20" type="text" name="answerOne" placeholder="" required="required">
+</br>
+</br>
+<div class="govuk-form-group">
+  <label class="govuk-label" for="question 2">
+    Security Question 2
+  </label>
+  <div id="subject-hint" class="govuk-hint">
+    Choose your second security question
+  </div>
+  <select class="govuk-select" id="subject" name="questionTwo" aria-describedby="subject-hint">
+    <option value="Name of your favourite instrument?" selected>Name of your favourite instrument?</option>
+    <option value="What is your favourite colour?">What is your favourite colour?</option>
+    <option value="Who is your favourite fictional character?">Who is your favourite fictional character?</option>
+    <option value="What is your favourite genre of music?">What is your favourite genre of music?</option>
+    <option value="Where did you go to University?">Where did you go to University?</option>
+  </select>
+</div>
+<h4 class="govuk-heading-m">Answer</h4>
+<input class="govuk-input govuk-input--width-20" type="text" name="answerTwo" placeholder="" required="required">
+</br>
+<div class="govuk-form-group">
+  <label class="govuk-label" for="question 3">
+    Security Question 3
+  </label>
+  <div id="subject-hint" class="govuk-hint">
+    Choose your third security question
+  </div>
+  <select class="govuk-select" id="subject" name="questionThree" aria-describedby="subject-hint">
+    <option value="Who is your favourite singer?" selected>Who is your favourite singer?</option>
+    <option value="What is your favourite video game?">What is your favourite video game?</option>
+    <option value="What is your favourite meal?">What is your favourite meal?</option>
+    <option value="What was the first concert you attended?">What was the first concert you attended?</option>
+    <option value="Where did your parents first meet?">Where did your parents first meet?</option>
+  </select>
+</div>
+<h4 class="govuk-heading-m">Answer</h4>
+<input class="govuk-input govuk-input--width-20" type="text" name="answerThree" placeholder="" required="required">
+</br>
+<button class="govuk-button" data-module="govuk-button" id="submit" type="submit">Submit</button>
+</form>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

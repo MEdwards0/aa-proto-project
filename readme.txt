@@ -13,3 +13,5 @@ DATABASE="database.name"
 - requires node version 17.6.0 to run.
 - run all dependencies by going to terminal and typing in the root folder: npm install
 - run the program by going to the 'src' folder in terminal and type: node server.js
+
+ALL OF THIS IS SUBJECT TO CHANGE.

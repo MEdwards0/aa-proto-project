@@ -1,5 +1,5 @@
 const { client } = require('./connection');
-const { encryptInput, checkEncryption } = require('../hash/passwordModel');
+const { encryptInput, checkEncryption } = require('../hash/encryptionModel');
 
 const convertTimeDDMMYYYY = (date) => {
     const convertDate = new Date(date);
@@ -123,22 +123,24 @@ const findNino = async (nino) => {
 
     if (result.rows[0] == undefined) {
         return {
-            status: false
+            status: false,
+            message: 'undefined'
         };
     }
 
     return {
-        status: true
+        status: true,
+        message: 'found'
     };
 };
 
 const getSecurityQuestions = async (nino) => {
     try {
-    const query = `SELECT "NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree"
+        const query = `SELECT "NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree"
 	FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
 
-    const result = await client.query(query);
-    return result;
+        const result = await client.query(query);
+        return result;
     } catch (error) {
         console.log(error);
     }
@@ -146,17 +148,19 @@ const getSecurityQuestions = async (nino) => {
 
 const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
     try {
-        const query = `SELECT "answerOne", "answerTwo", "answerThree" FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
-        const answers = await client.query(query);
-        if (answers.rows[0].answerOne == answerOne && answers.rows[0].answerTwo == answerTwo && answers.rows[0].answerThree == answerThree) {
-            return {
-                error: false
-            };
-        }
 
-        return {
-            error: true
+        const query = `SELECT "answerOne", "answerTwo", "answerThree" FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
+        const result = await client.query(query);
+
+        const answerCheckOne = await checkEncryption(answerOne, result.rows[0].answerOne);
+        const answerCheckTwo = await checkEncryption(answerTwo, result.rows[0].answerTwo);
+        const answerCheckThree = await checkEncryption(answerThree, result.rows[0].answerThree);
+
+        if (answerCheckOne && answerCheckTwo && answerCheckThree) {
+            return true;
         };
+
+        return false;
 
     } catch (error) {
         console.log(error);
@@ -229,26 +233,25 @@ const addClaim = async (object) => {
 };
 
 
-// const addCustomer = async ({ customer }) => {
-//     try {
-//         const query = `INSERT INTO customer 
-//     (NINO, fName, mName, lName, dob) 
-//     VALUES ('${customer.NINO}', '${customer.fName}', '${customer.mName}', '${customer.lName}', '${customer.dob}')`;
-//         await client.query(query);
+const addCustomer = async (customer) => {
+    // console.log('customer object is:', customer) // debug checking input
 
-//         const customerQuery = `SELECT * FROM customer WHERE NINO = '${customer.NINO}'`;
-//         const result = await client.query(customerQuery);
-//         return result.rows[0];
-//     } catch (error) {
-//         return error
-//     }
+    try {
+        const query = `INSERT INTO "customer" 
+    ("NINO", "fName", "mName", "lName", "dob") 
+    VALUES ('${customer.NINO}', '${customer.fName}', '${customer.mName}', '${customer.lName}', '${customer.dob}')`;
+        await client.query(query);
 
-// };
+        const customerQuery = `SELECT * FROM "customer" WHERE "NINO" = '${customer.NINO}'`;
+        const result = await client.query(customerQuery);
+        return result.rows[0];
+    } catch (error) {
+        console.log('model.js: addCustomer \n\n', error)
+    };
+};
 
 const addCustomerAccessToken = async (user, nino) => {
-
     // Delete any entries where the user already has a token
-
     try {
         const query = `DELETE FROM "customerAccessToken" WHERE "user" = '${user}'`;
         await client.query(query);
@@ -301,7 +304,7 @@ const checkCustomerAccessToken = async (token, user, nino) => {
             errorMessage: error
         };
     }
-    
+
 };
 
 const deleteCustomerAccessToken = async (token) => {
@@ -329,13 +332,27 @@ const verifyCustomerAccessToken = async (token) => {
             error: true
         };
 
-        
-
     } catch (error) {
         return {
             error: true
         }
     }
+};
+
+const addCustomerSecurity = async (customer) => {
+    try {
+        const answerOneFinal = await encryptInput(customer.answerOne);
+        const answerTwoFinal = await encryptInput(customer.answerTwo);
+        const answerThreeFinal = await encryptInput(customer.answerThree);
+        
+        const query = `INSERT INTO "customerSecurity" ("NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree") 
+    VALUES ('${customer.NINO}', '${customer.questionOne}', '${answerOneFinal}', '${customer.questionTwo}', '${answerTwoFinal}', '${customer.questionThree}', '${answerThreeFinal}');`;
+
+        await client.query(query);
+    } catch (error) {
+        console.log('model.js addCustomerSecurity \n\n', error);
+    }   
+
 };
 
 
@@ -358,5 +375,7 @@ module.exports = {
     addCustomerAccessToken,
     checkCustomerAccessToken,
     deleteCustomerAccessToken,
-    verifyCustomerAccessToken
+    verifyCustomerAccessToken,
+    addCustomer,
+    addCustomerSecurity
 };

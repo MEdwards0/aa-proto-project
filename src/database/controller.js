@@ -17,7 +17,9 @@ const factory = ({
     addCustomerAccessToken,
     checkCustomerAccessToken,
     deleteCustomerAccessToken,
-    verifyCustomerAccessToken
+    verifyCustomerAccessToken,
+    addCustomer,
+    addCustomerSecurity
 }) => {
 
     const handleAddUser = async (username, password) => {
@@ -106,7 +108,10 @@ const factory = ({
             return {error: false};
         };
 
-        return {error: true};
+        return {
+            error: true,
+            message: result.message
+        };
     };
 
     const handleGetSecurityQuestions = async (nino) => {
@@ -130,7 +135,16 @@ const factory = ({
 
     const handleCheckSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
         const result = await checkSecurityAnswers(nino, answerOne, answerTwo, answerThree);
-        return result;
+
+        if (!result) {
+            return {
+                error: true
+            };
+        }
+
+        return {
+            error: false
+        };
     };
 
     const handleGetCustomer = async (nino) => {
@@ -160,15 +174,6 @@ const factory = ({
     };
 
     const handleCheckCustomerAccessToken = async (token, user, nino) => {
-        // const tokenError = await verifyCustomerAccessToken(token);
-
-        // if (tokenError.error) {
-        //     console.log(tokenError.errorMessage);
-
-        //     return {
-        //         error: true
-        //     };
-        // };
 
         const response = await checkCustomerAccessToken(token, user, nino);
 
@@ -193,6 +198,20 @@ const factory = ({
         return token;
     };
 
+    const handleAddNewCustomer = async (customer) => {
+        try {
+            await addCustomer(customer);
+            await addCustomerSecurity(customer);
+            return {error: false}
+        } catch (error) {
+            return {
+                error: true,
+                errorMessage: error
+            }
+        }
+        
+    };
+
     return {
         handleAddUser,
         handleLogIn,
@@ -204,7 +223,8 @@ const factory = ({
         handleGetCustomer,
         handleUpdateClaim,
         handleAddNewCustomerAccessToken,
-        handleCheckCustomerAccessToken
+        handleCheckCustomerAccessToken,
+        handleAddNewCustomer
     }
 };
 
