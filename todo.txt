@@ -3,8 +3,6 @@
 - add create an account, admin function to make pending accounts active.
     - add table column containing activated account bool.
 
-- use sessions instead of cookies: will require a large overhaul in places
-
 - update program to use classes.
     - use session id as class name?
 

@@ -1,25 +1,20 @@
 const database = require('../database');
 const claim = require('../claim');
+const {User, Admin} = require("../classes");
 
 const handler = () => {
 
     const displayUserHome = async (req, res) => {
         try {
 
-            if (req.cookies.token != undefined) {
-
-                res.clearCookie('nino');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
-                res.clearCookie('customerAccessToken');
+            if (req.session.token != undefined) {
 
                 const profile = {
-                    username: req.cookies.username,
-                    id: req.cookies.id
+                    username: req.session.username,
+                    id: req.session.id
                 };
 
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
 
                 result.status ? res.render('user_home', { profile: profile }) : res.redirect('/log-out');
             } else {
@@ -28,31 +23,25 @@ const handler = () => {
 
         } catch (error) {
             console.log(error);
-            res.clearCookie('token');
-            res.clearCookie('username');
-            res.clearCookie('customerAccessToken');
-            // res.clearCookie('id');
+            req.session.destroy(); // destroy the current session.
             res.redirect('/');
         };
     };
 
     const logInPage = async (req, res) => {
         try {
-            const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+            const result = await database.handleGetToken(req.session.token, req.session.username);
+
+            console.log('DEBUG token is:', req.session.token);
+            console.log('handleGetToken result: ', result.status)
 
             if (result.status) {
                 res.redirect('/user-home');
             } else {
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('nino');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
-                res.clearCookie('customerAccessToken');
+                req.session.destroy(); // destroy the current session.
             };
 
-            if (req.cookies.token == undefined || !result.status) {
+            if (req.session.token == undefined || !result.status) {
                 res.render('login', { error: false });
             };
 
@@ -90,8 +79,8 @@ const handler = () => {
         const result = await database.handleLogIn(username, password);
 
         if (!result.error) {
-            res.cookie('token', result.token);
-            res.cookie('username', result.profile.username);
+            req.session.token = result.token;
+            req.session.username = result.profile.username;
             res.redirect('user-home');
         } else {
             res.render('login', { error: result.error });
@@ -100,14 +89,8 @@ const handler = () => {
 
     const logOut = async (req, res) => {
         try {
-            await database.handleRemoveToken(req.cookies.token);
-            res.clearCookie('token');
-            res.clearCookie('username');
-            res.clearCookie('nino');
-            res.clearCookie('answerOne');
-            res.clearCookie('answerTwo');
-            res.clearCookie('answerThree');
-            res.clearCookie('customerAccessToken');
+            await database.handleRemoveToken(req.session.token);
+            req.session.destroy(); // destroy the current session.
             res.redirect('/');
         } catch (error) {
             console.log('error');
@@ -117,22 +100,21 @@ const handler = () => {
     };
 
     const validateNinoForm = async (req, res) => {
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
 
                 const page = {
                     route: req.params.route,
                     error: false,
-                    username: req.cookies.username
+                    username: req.session.username
                 };
 
                 result.status ? res.render('validate_nino', { page: page }) : res.redirect('/log-out');
 
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             };
         } else {
@@ -142,9 +124,9 @@ const handler = () => {
 
     const validateNino = async (req, res) => {
 
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
 
                 if (!result.error) {
                     const response = await database.handleValidateNino(req.body.nino);
@@ -154,7 +136,7 @@ const handler = () => {
                         nino: req.body.nino,
                         route: req.params.route,
                         error: response.error,
-                        username: req.cookies.username
+                        username: req.session.username
                     };
 
                     const customer = await database.handleGetCustomer(page.nino);
@@ -174,7 +156,8 @@ const handler = () => {
                     } else {
                         const result = await database.handleGetSecurityQuestions(req.body.nino);
                         // finally trust for the nino to be put in cookies
-                        res.cookie('nino', req.body.nino);
+                        // res.cookie('nino', req.body.nino);
+                        req.session.nino = req.body.nino
                         page.questions = result.questions;
                         res.render('security_questions', { page: page });
                     }
@@ -182,11 +165,7 @@ const handler = () => {
 
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             };
         } else {
@@ -195,20 +174,22 @@ const handler = () => {
     };
 
     const checkSecurityQuestions = async (req, res) => {
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
-                const token = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const token = await database.handleGetToken(req.session.token, req.session.username);
 
                 page = {
-                    nino: req.cookies.nino,
+                    nino: req.session.nino,
                     route: req.params.route,
                     error: token.error,
-                    username: req.cookies.username
+                    username: req.session.username
                 }
 
                 if (!token.error) {
 
-                    const result = await database.handleCheckSecurityAnswers(req.cookies.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
+                    console.log('DEBUG: checkSecurityAnswers', req.session.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree)
+
+                    const result = await database.handleCheckSecurityAnswers(req.session.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
 
                     page.error = result.error;
 
@@ -231,27 +212,17 @@ const handler = () => {
                         res.render('security_questions', { page: page });
 
                     } else {
-                        // res.clearCookie('nino');
-
-                        // res.cookie('answerOne', req.body.answerOne);
-                        // res.cookie('answerTwo', req.body.answerTwo);
-                        // res.cookie('answerThree', req.body.answerThree);
 
                         // Issue new access token for customer information here.
-                        const token = await database.handleAddNewCustomerAccessToken(req.cookies.username, req.cookies.nino);
-                        res.cookie('customerAccessToken', token);
+                        const token = await database.handleAddNewCustomerAccessToken(req.session.username, req.session.nino);
+                        req.session.customerAccessToken = token;
 
                         res.redirect(`/view-customer-data/${page.nino}`);
                     };
                 }
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('nino');
-                // res.clearCookie('answerOne');
-                // res.clearCookie('answerTwo');
-                // res.clearCookie('answerThree');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             }
         } else {
@@ -260,37 +231,33 @@ const handler = () => {
     };
 
     const processCustomer = async (req, res) => {
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
 
                 const page = {
-                    nino: req.cookies.nino,
-                    username: req.cookies.username,
+                    nino: req.session.nino,
+                    username: req.session.username,
                     error: false
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(req.cookies.nino);
+                const nino = await database.handleValidateNino(req.session.nino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
-                req.cookies.nino == req.params.nino ? page.error = page.error : page.error = true;
+                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
+                const security = await database.handleCheckCustomerAccessToken(req.session.customerAccessToken, req.session.username, req.session.nino);
                 // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
-
-                // res.clearCookie('answerOne');
-                // res.clearCookie('answerTwo');
-                // res.clearCookie('answerThree');
 
                 // get customer information for the page rendering here:
 
@@ -314,13 +281,7 @@ const handler = () => {
                 };
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('nino');
-                res.clearCookie('customerAccessToken')
-                // res.clearCookie('answerOne');
-                // res.clearCookie('answerTwo');
-                // res.clearCookie('answerThree');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             };
         } else {
@@ -329,37 +290,33 @@ const handler = () => {
     };
 
     const viewCustomerData = async (req, res) => {
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
 
                 const page = {
-                    nino: req.cookies.nino,
-                    username: req.cookies.username,
+                    nino: req.session.nino,
+                    username: req.session.username,
                     error: false
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(req.cookies.nino);
+                const nino = await database.handleValidateNino(req.session.nino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
-                req.cookies.nino == req.params.nino ? page.error = page.error : page.error = true;
+                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                const security = await database.handleCheckCustomerAccessToken(req.cookies.customerAccessToken, req.cookies.username, req.cookies.nino);
+                const security = await database.handleCheckCustomerAccessToken(req.session.customerAccessToken, req.session.username, req.session.nino);
                 // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
-
-                // res.clearCookie('answerOne');
-                // res.clearCookie('answerTwo');
-                // res.clearCookie('answerThree');
 
                 const customer = await database.handleGetCustomer(page.nino);
 
@@ -387,12 +344,7 @@ const handler = () => {
                 };
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('nino');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             };
         } else {
@@ -401,28 +353,28 @@ const handler = () => {
     };
 
     const submitApplication = async (req, res) => {
-        if (req.cookies.token != undefined) {
+        if (req.session.token != undefined) {
             try {
 
                 const page = {
-                    nino: req.cookies.nino,
-                    username: req.cookies.username,
+                    nino: req.session.nino,
+                    username: req.session.username,
                     claimMessage: 'none',
                     error: false
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(req.cookies.token, req.cookies.username);
+                const result = await database.handleGetToken(req.session.token, req.session.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(req.cookies.nino);
+                const nino = await database.handleValidateNino(req.session.nino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
-                req.cookies.nino == req.params.nino ? page.error = page.error : page.error = true;
+                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // do claim logic here, returns an object with an error and a claim message, if error is true, there was an error.
@@ -461,12 +413,7 @@ const handler = () => {
                 };
             } catch (error) {
                 console.log(error);
-                res.clearCookie('token');
-                res.clearCookie('username');
-                res.clearCookie('nino');
-                res.clearCookie('answerOne');
-                res.clearCookie('answerTwo');
-                res.clearCookie('answerThree');
+                req.session.destroy(); // destroy the current session.
                 res.redirect('/');
             };
         } else {
