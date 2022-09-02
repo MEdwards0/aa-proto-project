@@ -1,0 +1,142 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+
+<header class="custom-header">
+  <span class="account">USER: {{profile.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+  <h1 class="govuk-heading-xl">Manage Users</h1>
+
+  {%if page.error%}
+    <table class="table-view">
+        <h3 id='error'>There was an error</h3>
+    </table>
+
+    
+
+
+
+    <style>
+        .table-view{
+            height: 50%;
+            width: 60%;
+            border-color: black;
+            border-opacity: 50%;
+        }
+
+        #error {
+            color: red;
+            opacity: 50%;
+            text-decoration: underline;
+        }
+
+    </style>
+  {%else%}
+    <table class="table-view">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Account Active</th>
+            <th>Admin</th>
+        </tr>
+
+        {% for user in page.users %}
+            <tr>
+                <td>user.id</td>
+                <td>user.username</td>
+                <td>user.activeAccount</td>
+                <td>user.isAdmin</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td>EMPTY</td>
+                <td>EMPTY</td>
+                <td>EMPTY</td>
+                <td>EMPTY</td>
+            </tr>
+        {% endfor %}
+    </table>
+  {%endif%}
+
+
+  <table>
+        <tr>
+            <th>User ID Selected</th>
+            <th>Username Selected</th>
+        </tr>
+        <tr>
+            <td id='input-id' name='id'>
+
+            </td>
+            <td id='input-username' name='username'>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                Activate Account
+            </th>
+            <th>
+                Make Admin
+            </th>
+        </tr>
+        <tr>
+          <form method='POST' action='activate-accounts-verify'>
+            <input name='id' id='verify-id' type='hidden'></input>
+            <input name='username' id='verify-username' type='hidden'></input>
+            <td>
+                <button id='activate-account-button' type='submit'>Activate Account</button>
+            </td>
+          </form>
+
+          <form method='POST' action='activate-accounts-admin'>
+            <input name='id' id='admin-id' type='hidden'></input>
+            <input name='username' id='admin-username' type='hidden'></input>
+            <td>
+                <button id='make-admin-button' type='submit'>Make Admin</button>
+            </td>
+          </form>
+        </tr>
+  </table>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    <div id="user-action-section">
+      <a href='/admin-home'><button class="govuk-button" data-module="govuk-button" type="button">Exit</button></a>
+    </div>
+  </div>
+</div>
+
+  <style>
+    .custom-header {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    top: 1%;
+    right: 16%;
+    display: grid;
+  }
+
+  .signout a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .signout a:hover {
+    text-decoration: underline;
+  }
+  </style>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="/styles/all.js"></script>
+  <script src='/styles/admin_screen.js'></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

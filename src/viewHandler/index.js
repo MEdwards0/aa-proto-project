@@ -1,23 +1,37 @@
 const database = require('../database');
 const claim = require('../claim');
-const {User, Admin} = require("../classes");
+const { User, Admin } = require("../classes");
+const { addClassMethods } = require('../classes/methods');
 
 const handler = () => {
 
     const displayUserHome = async (req, res) => {
+
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        }
+
         try {
-
-            if (req.session.token != undefined) {
-
+            // addClassMethods(user);
+            if (user.token != undefined && user.activeAccount && user.loggedIn) {
                 const profile = {
-                    username: req.session.username,
-                    id: req.session.id
+                    username: user.username,
+                    userLevel: user.userLevel
+                    // id: req.session.id
                 };
 
-                const result = await database.handleGetToken(req.session.token, req.session.username);
+                const result = await database.handleGetToken(user.token, user.username);
 
+                console.log('User level is:', user.userLevel)
                 result.status ? res.render('user_home', { profile: profile }) : res.redirect('/log-out');
+
             } else {
+                req.session.destroy();
                 res.redirect('/');
             };
 
@@ -30,23 +44,29 @@ const handler = () => {
 
     const logInPage = async (req, res) => {
         try {
-            const result = await database.handleGetToken(req.session.token, req.session.username);
+            const user = req.session.class;
 
-            console.log('DEBUG token is:', req.session.token);
-            console.log('handleGetToken result: ', result.status)
+            if (user == undefined || user.token == undefined) {
+                console.log('user or token not defined.');
+                const page = { error: true, activeAccount: true };
+                res.render('login', { error: page });
 
-            if (result.status) {
-                res.redirect('/user-home');
             } else {
-                req.session.destroy(); // destroy the current session.
+                console.log();
+                addClassMethods(user); // just adding class methods here in case they are to be used at any point in this route.
+                const result = await database.handleGetToken(user.token, user.username);
+                if (!result.status) {
+                    req.session.destroy(); // destroy the current session.
+                    const page = { error: true }
+                    res.render('login', { error: page });
+                } else {
+                    res.redirect('/user-home');
+                };
             };
-
-            if (req.session.token == undefined || !result.status) {
-                res.render('login', { error: false });
-            };
-
         } catch (error) {
             console.log(error);
+            const page = { error: false }
+            res.render('login', { error: page });
         };
     };
 
@@ -74,40 +94,93 @@ const handler = () => {
     };
 
     const signIn = async (req, res) => {
-
+        let user; // set to contain user class
         const { username, password } = req.body;
         const result = await database.handleLogIn(username, password);
 
+        // Check the user account level if there is one to be found:
+        console.log(`result.error is : ${result.error}`);
         if (!result.error) {
-            req.session.token = result.token;
-            req.session.username = result.profile.username;
-            res.redirect('user-home');
+            // req.session.token = result.token;
+            // req.session.username = result.profile.username;
+
+            // assign the user the correct class depending on admin level.
+
+            console.log(`result.admin is ${result.profile.admin}`);
+
+            if (result.profile.admin) {
+                req.session.class = req.session.id = new Admin(username, password, result.profile.accountActive);
+                user = req.session.class; // set the user class here
+
+                req.session.id = new Admin(username, password, result.profile.accountActive);
+            } else {
+                req.session.class = req.session.id = new User(username, password, result.profile.accountActive);
+                user = req.session.class; // set the user class here
+
+                req.session.id = new User(username, password, result.profile.accountActive);
+            };
+
+            // console.log(`User's ActiveAccount status is: ${user.activeAccount}`);
+
+            user.setToken(result.token);
+            user.logIn();
+
+            if (user.activeAccount) {
+                res.redirect('user-home');
+            } else {
+                const page = { error: true, activeAccount: user.activeAccount }
+                res.render('login', { page: page })
+            };
+
+            // res.redirect('user-home');
         } else {
-            res.render('login', { error: result.error });
-        }
+            console.log('In signin section else block');
+            const page = { error: result.error, activeAccount: true };
+            console.log(`page.error is: ${page.error}`);
+            res.render('login', { page: page });
+        };
     };
 
     const logOut = async (req, res) => {
         try {
-            await database.handleRemoveToken(req.session.token);
-            req.session.destroy(); // destroy the current session.
+            const user = req.session.class;
+            addClassMethods(user);
+
+            await database.handleRemoveToken(user.token);
+            user.removeCustomerInfo();
+            user.clearToken();
+            user.logOut();
+
+            console.log('logging out.')
+            req.session.destroy();
+            console.log('going to home screen'); // destroy the current session.
             res.redirect('/');
         } catch (error) {
             console.log('error');
+            req.session.destroy();
             res.redirect('/');
         };
 
     };
 
     const validateNinoForm = async (req, res) => {
-        if (req.session.token != undefined) {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        }
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const result = await database.handleGetToken(req.session.token, req.session.username);
+                const result = await database.handleGetToken(user.token, user.username);
 
                 const page = {
                     route: req.params.route,
                     error: false,
-                    username: req.session.username
+                    username: user.username
                 };
 
                 result.status ? res.render('validate_nino', { page: page }) : res.redirect('/log-out');
@@ -123,11 +196,20 @@ const handler = () => {
     };
 
     const validateNino = async (req, res) => {
+        const user = req.session.class;
+        // If there is no user in the session, go back to log in.
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        };
 
-        if (req.session.token != undefined) {
+        user.sayHello();
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const result = await database.handleGetToken(req.session.token, req.session.username);
-
+                const result = await database.handleGetToken(user.token, user.username);
                 if (!result.error) {
                     const response = await database.handleValidateNino(req.body.nino);
 
@@ -136,7 +218,7 @@ const handler = () => {
                         nino: req.body.nino,
                         route: req.params.route,
                         error: response.error,
-                        username: req.session.username
+                        username: user.username
                     };
 
                     const customer = await database.handleGetCustomer(page.nino);
@@ -157,7 +239,9 @@ const handler = () => {
                         const result = await database.handleGetSecurityQuestions(req.body.nino);
                         // finally trust for the nino to be put in cookies
                         // res.cookie('nino', req.body.nino);
-                        req.session.nino = req.body.nino
+                        console.log(user.setCustomerNino);
+
+                        user.setCustomerNino(req.body.nino);
                         page.questions = result.questions;
                         res.render('security_questions', { page: page });
                     }
@@ -169,27 +253,37 @@ const handler = () => {
                 res.redirect('/');
             };
         } else {
+            // req.session.destroy(); // destroy the current session.
             res.redirect('/');
         }
     };
 
     const checkSecurityQuestions = async (req, res) => {
-        if (req.session.token != undefined) {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        };
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const token = await database.handleGetToken(req.session.token, req.session.username);
+                const token = await database.handleGetToken(user.token, user.username);
 
                 page = {
-                    nino: req.session.nino,
+                    nino: user.customerNino,
                     route: req.params.route,
                     error: token.error,
-                    username: req.session.username
+                    username: user.username
                 }
 
                 if (!token.error) {
 
-                    console.log('DEBUG: checkSecurityAnswers', req.session.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree)
+                    // console.log('DEBUG: checkSecurityAnswers', user.customerNino, req.body.answerOne, req.body.answerTwo, req.body.answerThree)
 
-                    const result = await database.handleCheckSecurityAnswers(req.session.nino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
+                    const result = await database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
 
                     page.error = result.error;
 
@@ -214,8 +308,10 @@ const handler = () => {
                     } else {
 
                         // Issue new access token for customer information here.
-                        const token = await database.handleAddNewCustomerAccessToken(req.session.username, req.session.nino);
-                        req.session.customerAccessToken = token;
+                        const token = await database.handleAddNewCustomerAccessToken(user.username, user.customerNino);
+                        // Set the customer access token to the user class
+                        user.setCustomerAccessToken(token)
+                        // req.session.customerAccessToken = token;
 
                         res.redirect(`/view-customer-data/${page.nino}`);
                     };
@@ -231,31 +327,41 @@ const handler = () => {
     };
 
     const processCustomer = async (req, res) => {
-        if (req.session.token != undefined) {
-            try {
+        const user = req.session.class;
 
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        }
+
+        // addClassMethods(user);
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
+            try {
                 const page = {
-                    nino: req.session.nino,
-                    username: req.session.username,
+                    nino: user.customerNino,
+                    username: user.username,
                     error: false
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(req.session.token, req.session.username);
+                const result = await database.handleGetToken(user.token, user.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(req.session.nino);
+                const nino = await database.handleValidateNino(user.customerNino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
-                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
+                user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
-                const security = await database.handleCheckCustomerAccessToken(req.session.customerAccessToken, req.session.username, req.session.nino);
+                const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
                 // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
@@ -290,35 +396,64 @@ const handler = () => {
     };
 
     const viewCustomerData = async (req, res) => {
-        if (req.session.token != undefined) {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        }
+
+        // addClassMethods(user);
+
+        console.log('ATTEMPTING TO VIEW CUSTOMER DATA')
+
+        console.log(`user.token is: ${req.session.token}, user.activeAccount is: ${user.activeAccount}, user.loogedIn is ${user.loggedIn}`);
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
 
                 const page = {
-                    nino: req.session.nino,
-                    username: req.session.username,
+                    nino: user.customerNino,
+                    username: user.username,
                     error: false
                 }
 
+                console.log('Checking token:');
+
                 // check token validity
-                const result = await database.handleGetToken(req.session.token, req.session.username);
+                const result = await database.handleGetToken(user.token, user.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
+                console.log('result.error is:', result.error);
+
+                console.log('checking nino');
+
                 // check nino validity
-                const nino = await database.handleValidateNino(req.session.nino);
+                const nino = await database.handleValidateNino(user.customerNino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
+                console.log(`nino.error is: ${nino.error}`);
                 // check nobody fiddled with the cookies
-                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
+                user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
+                console.log('Checking access token:');
                 // check security questions
-                const security = await database.handleCheckCustomerAccessToken(req.session.customerAccessToken, req.session.username, req.session.nino);
+                const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
                 // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
+                console.log(`security.error is: ${security.error}`);
+
+                console.log(`checking customer response:`)
+
                 const customer = await database.handleGetCustomer(page.nino);
+
+                console.log(`customer.error is: ${customer.error}}`);
 
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
@@ -339,6 +474,7 @@ const handler = () => {
                 if (page.error) {
                     res.redirect('/');
                 } else {
+                    console.log('RENDERING VIEW_CUSTOMER_DATA')
                     res.render('view_customer_data', { page: page });
                     // res.send('success: render view_customer_data page');
                 };
@@ -353,28 +489,39 @@ const handler = () => {
     };
 
     const submitApplication = async (req, res) => {
-        if (req.session.token != undefined) {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return;
+        } else {
+            addClassMethods(user);
+        }
+
+        // addClassMethods(user);
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
 
                 const page = {
-                    nino: req.session.nino,
-                    username: req.session.username,
+                    nino: user.customerNino,
+                    username: user.username,
                     claimMessage: 'none',
                     error: false
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(req.session.token, req.session.username);
+                const result = await database.handleGetToken(user.token, user.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(req.session.nino);
+                const nino = await database.handleValidateNino(user.customerNino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
-                req.session.nino == req.params.nino ? page.error = page.error : page.error = true;
+                user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // do claim logic here, returns an object with an error and a claim message, if error is true, there was an error.
@@ -444,7 +591,7 @@ const handler = () => {
         const result = await database.handleValidateNino(req.body.nino);
 
         // Validate nino length
-        
+
         if (page.nino.length != 9) {
             result.message = 'wrong nino length';
         }
@@ -494,6 +641,77 @@ const handler = () => {
         }
     };
 
+    const adminHome = (req, res) => {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return
+        } else {
+            addClassMethods(user);
+        };
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn && user.userLevel == 'admin') {
+            try {
+                const page = {
+                    username: user.username
+                }
+                res.render('admin_home', {page: page})
+            } catch (error) {
+                console.log(error);
+                req.session.destroy();
+                res.redirect('/');
+            }
+        } else {
+            res.redirect('/');
+        };
+    };
+
+    const manageUsers = async (req, res) => {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return
+        } else {
+            addClassMethods(user);
+        };
+
+        if (user.token != undefined && user.activeAccount && user.loggedIn && user.userLevel == 'admin') {
+            try {
+                const result = await database.handleGetAllUsers(user.username); // Put id here to ignore user.
+
+                if (result.error) {
+                    const page = { error: result.error };
+                    res.render('manage_users', {page: page});
+                    return;
+                };
+
+                const page = {
+                    username: user.username,
+                    users: result.users
+                };
+
+                res.render('manage_users', { page: page });
+
+            } catch (error) {
+                console.log(error);
+                req.session.destroy();
+                res.redirect('/');
+            }
+        } else {
+            res.redirect('/');
+        };
+    };
+
+    const activateAccountSubmit = async (req, res) => {
+
+    };
+
+    const makeAccountAdminSubmit = async (req, res) => {
+
+    };
+
     return {
         logInPage,
         resetPasswordForm,
@@ -511,7 +729,11 @@ const handler = () => {
         submitApplication,
         addCustomerForm,
         addCustomerSecurityForm,
-        addCustomerSubmit
+        addCustomerSubmit,
+        adminHome,
+        manageUsers,
+        activateAccountSubmit,
+        makeAccountAdminSubmit
     };
 };
 

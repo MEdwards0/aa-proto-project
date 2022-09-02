@@ -25,11 +25,21 @@
 <a href='/add-customer'>Temporary - Create a new customer</a>
 
 
-{% if error%}
-  <span id='error'>There was an error logging in.</span>
+{% if page.error %}
+
+  <p id='error'>There was an error logging in.</p>
+  {% if page.activeAccount == false %}
+
+  <p class='error'>Account not activated. Please contact an administrator.</p>
+  {% endif %}
 
   <style>
     #error {
+    color: red;
+    font-size: 1.2em;
+    }
+
+    .error {
     color: red;
     font-size: 1.2em;
     }

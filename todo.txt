@@ -1,10 +1,6 @@
 - add breadcrumbs to new claim screen.
 
-- add create an account, admin function to make pending accounts active.
-    - add table column containing activated account bool.
-
-- update program to use classes.
-    - use session id as class name?
+- add admin function to make pending accounts active.
 
 - move dot-env to a config file that takes in dotenv and export from that file.
 

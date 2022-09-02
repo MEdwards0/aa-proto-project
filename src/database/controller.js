@@ -16,13 +16,12 @@ const factory = ({
     addClaim,
     addCustomerAccessToken,
     checkCustomerAccessToken,
-    deleteCustomerAccessToken,
-    verifyCustomerAccessToken,
     addCustomer,
-    addCustomerSecurity
+    addCustomerSecurity,
+    getAllUsers,
 }) => {
 
-    const handleAddUser = async (username, password) => {
+    const handleAddUser = async (username, password, admin=false) => {
         const result = await addUser(username, password);
 
         if (result.error) {
@@ -31,7 +30,8 @@ const factory = ({
                 error: result.error
             }
         }
-        const response = await addAdmin(result.id)
+        const response = await addAdmin(result.id, admin);
+        
         return {
             status: true,
             error: false
@@ -55,7 +55,8 @@ const factory = ({
                     profile: {
                         username: user.username,
                         id: user.id,
-                        admin: user.admin
+                        admin: user.admin,
+                        accountActive: user.accountActive
                     }
                 }
             }
@@ -212,6 +213,21 @@ const factory = ({
         
     };
 
+    const handleGetAllUsers = async (username) => {
+        try {
+            const users = await getAllUsers(username);
+
+            return {
+                users: users,
+                error: false
+            }
+        } catch (error) {
+            return {
+                error: true
+            }
+        }
+    };
+
     return {
         handleAddUser,
         handleLogIn,
@@ -224,7 +240,8 @@ const factory = ({
         handleUpdateClaim,
         handleAddNewCustomerAccessToken,
         handleCheckCustomerAccessToken,
-        handleAddNewCustomer
+        handleAddNewCustomer,
+        handleGetAllUsers
     }
 };
 

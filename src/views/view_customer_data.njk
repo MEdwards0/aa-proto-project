@@ -34,7 +34,6 @@
       <td class="govuk-table__cell">{{page.nino}}</td>
     </tr>
     {%if page.claimedAA%}
-    {% set regExp = r/^foo.*/g %}
     <tr class="govuk-table__row">
       <th scope="row" class="govuk-table__header">Award Level</th>
       <td class="govuk-table__cell">{%if page.rateCode == 'L'%}Lower Rate{%else%}Higher Rate{%endif%}</td>

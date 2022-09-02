@@ -99,7 +99,9 @@ const buildUserTable = async () => {
             id SERIAL PRIMARY KEY,
             username character varying(50),
             password character varying(200),
-            CONSTRAINT user_username_key UNIQUE (username)
+            "accountActive" boolean NOT NULL DEFAULT false,
+            CONSTRAINT user_username_key UNIQUE (username),
+            CONSTRAINT user_pkey PRIMARY KEY (id)
         )`;
     await client.query(query);
 };
@@ -136,11 +138,11 @@ const buildSecurityQuestionsTable = async () => {
 	"id" SERIAL PRIMARY KEY NOT NULL,
     "NINO" character varying(9) COLLATE pg_catalog."default" NOT NULL,
     "questionOne" character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    "answerOne" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "answerOne" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "questionTwo" character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    "answerTwo" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "answerTwo" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "questionThree" character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    "answerThree" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "answerThree" character varying(100) COLLATE pg_catalog."default" NOT NULL,
 	CONSTRAINT fk_NINO FOREIGN KEY("NINO") REFERENCES customer("NINO")
 );`;
 
@@ -152,7 +154,9 @@ const buildAdminTable = async () => {
     const query = `CREATE TABLE IF NOT EXISTS "admin"
         ( 
         	"id" SERIAL PRIMARY KEY NOT NULL,
-        	"isAdmin" BOOLEAN NOT NULL DEFAULT FALSE
+            "user_id" INTEGER NOT NULL,
+        	"isAdmin" BOOLEAN NOT NULL DEFAULT FALSE,
+			CONSTRAINT fk_user_id FOREIGN KEY("user_id") REFERENCES "user"("id")
         )`;
 
     await client.query(query);
@@ -170,7 +174,7 @@ const buildCustomerTable = async () => {
         	"deceased" BOOLEAN NOT NULL DEFAULT FALSE,
         	"claimDateStart" DATE,
         	"claimDateEnd" DATE,
-        	"rateCode" CHAR NOT NULL DEFAULT 0,
+        	"rateCode" CHAR NOT NULL DEFAULT 'N',
         	"dob" DATE NOT NULL,
         	"dod" DATE,
         	"claimedAA" BOOLEAN NOT NULL DEFAULT FALSE,

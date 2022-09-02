@@ -39,6 +39,16 @@ nunjucks.configure(
     },
 );
 
+// Misc Middleware
+
+
+// const { addClassMethods } = require('./classes/methods');// require('../classes/methods');
+
+// app.use((req, res, next) => {
+//     addClassMethods(req.session.class);
+//     next()
+// })
+
 //  GETS
 
 app.get('/', handler.logInPage);
@@ -58,6 +68,16 @@ app.get('/view-customer-data/:nino', handler.viewCustomerData);
 app.get('/process-customer/:nino', handler.processCustomer);
 
 app.get('/add-customer', handler.addCustomerForm);
+
+// ADMIN ROUTES
+
+app.get('/admin-home', handler.adminHome);
+
+app.get('/manage-users', handler.manageUsers);
+
+app.post('/activate-accounts-verify', handler.activateAccountSubmit);
+
+app.post('/make-account-admin', handler.makeAccountAdminSubmit);
 
 // DEV
 

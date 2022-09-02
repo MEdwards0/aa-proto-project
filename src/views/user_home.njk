@@ -21,6 +21,18 @@
     </div>
   </div>
 
+  {% if profile.userLevel == 'admin' %} 
+  <div class="govuk-grid-column-one-half">
+    <div id="user-action-section">
+      <h1 id="customer-actions-heading" class="govuk-heading-x1">User Actions</h1>
+      <a href='admin-home'><button class="govuk-button" data-module="govuk-button" id="manage-users" type="button">Manage Users</button></a>
+      <button class="govuk-button" data-module="govuk-button" type="button">Update Password</button>
+      <a href='log-out'><button class="govuk-button" data-module="govuk-button" id="logout" type="button">Secure Logout</button></a>
+    </div>
+  </div>
+</div>
+  
+  {%else%}
   <div class="govuk-grid-column-one-half">
     <div id="user-action-section">
       <h1 id="customer-actions-heading" class="govuk-heading-x1">User Actions</h1>
@@ -29,6 +41,9 @@
     </div>
   </div>
 </div>
+  {%endif%}
+
+  
 
 
 {# {% from "govuk/components/warning-text/macro.njk" import govukWarningText %} #}

@@ -1,0 +1,52 @@
+{% extends "govuk/template.njk" %}
+  {% block head %}
+<!--[if !IE 8]><!-->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+{% endblock %}
+{% block content %}
+
+<header class="custom-header">
+  <span class="account">USER: {{profile.username}}</span>
+  <span class="signout"><a href="/log-out">Sign Out</a></span>
+</header>
+
+  <h1 class="govuk-heading-xl">Manage Users</h1>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    <div id="user-action-section">
+      <a href='/activate-accounts'><button class="govuk-button" data-module="govuk-button" type="button">Activate Accounts</button></a>
+      <a href='/user-home'><button class="govuk-button" data-module="govuk-button" type="button">User Home</button></a>
+      <a href='/log-out'><button class="govuk-button" data-module="govuk-button" id="logout" type="button">Secure Logout</button></a>
+    </div>
+  </div>
+</div>
+
+  <style>
+    .custom-header {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: white;
+    position: fixed;
+    top: 1%;
+    right: 16%;
+    display: grid;
+  }
+
+  .signout a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .signout a:hover {
+    text-decoration: underline;
+  }
+  </style>
+
+{% endblock %}
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+  <script src="styles/all.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+{% endblock %}

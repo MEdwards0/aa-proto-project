@@ -71,6 +71,6 @@
 {% block bodyEnd %}
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
-  <script src="/styles/all.js"></script>
+  <script src="styles/all.js"></script>
   <script>window.GOVUKFrontend.initAll()</script>
 {% endblock %}

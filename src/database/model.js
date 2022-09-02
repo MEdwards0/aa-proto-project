@@ -31,21 +31,21 @@ const addUser = async (username, password) => {
     }
 };
 
-const addAdmin = async (id, admin = false) => {
+const addAdmin = async (id, admin) => {
 
     if (!admin) {
-        await client.query(`INSERT INTO "admin" (id) VALUES (${id})`);
+        await client.query(`INSERT INTO "admin" (user_id) VALUES (${id})`);
         return true;
     }
 
-    await client.query(`INSERT INTO "admin" (id, isAdmin) VALUES (${id}, 'true')`);
+    await client.query(`INSERT INTO "admin" (user_id, isAdmin) VALUES (${id}, 'true')`);
     return true;
 };
 
 const getUser = async (username) => {
     const query = `SELECT * FROM "user" WHERE username = '${username}'`;
     const result = await client.query(query);
-    const adminQuery = `SELECT * FROM "admin" WHERE id = ${result.rows[0].id}`;
+    const adminQuery = `SELECT * FROM "admin" WHERE user_id = ${result.rows[0].id}`;
     const resultAdmin = await client.query(adminQuery);
 
     if (result.rows[0] == undefined) {
@@ -60,6 +60,7 @@ const getUser = async (username) => {
         username: result.rows[0].username,
         id: result.rows[0].id,
         password: result.rows[0].password,
+        accountActive: result.rows[0].accountActive,
         admin: resultAdmin.rows[0].isAdmin
     }
 }
@@ -344,14 +345,43 @@ const addCustomerSecurity = async (customer) => {
         const answerOneFinal = await encryptInput(customer.answerOne);
         const answerTwoFinal = await encryptInput(customer.answerTwo);
         const answerThreeFinal = await encryptInput(customer.answerThree);
-        
+
         const query = `INSERT INTO "customerSecurity" ("NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree") 
     VALUES ('${customer.NINO}', '${customer.questionOne}', '${answerOneFinal}', '${customer.questionTwo}', '${answerTwoFinal}', '${customer.questionThree}', '${answerThreeFinal}');`;
 
         await client.query(query);
     } catch (error) {
         console.log('model.js addCustomerSecurity \n\n', error);
-    }   
+    };
+};
+
+const getAllUsers = async (username) => {
+    // return all users as an array of key value pairs, excluding the username specified.
+    try {
+        const query = `SELECT * FROM "user" WHERE "username" != '${username}';`;
+        const result = await client.query(query);
+        const users = [];
+
+        for (let i = 0; i < result.rows.length; i++) {
+            const admin = await client.query(`SELECT "is_admin" FROM "admin" WHERE "user_id" = ${result.rows[i].id};`);
+            
+            users.push({
+                username: result.rows[i].username,
+                activeAccount: result.rows[i].accountActive,
+                id: result.rows[i].id,
+                isAdmin: admin.rows[0].isAdmin
+            });
+        };
+
+        return users;
+
+    } catch (error) {
+        console.log('model.js getAllUsers \n\n', error);
+
+        return {
+            error: true
+        }
+    }
 
 };
 
@@ -377,5 +407,6 @@ module.exports = {
     deleteCustomerAccessToken,
     verifyCustomerAccessToken,
     addCustomer,
-    addCustomerSecurity
+    addCustomerSecurity,
+    getAllUsers
 };
