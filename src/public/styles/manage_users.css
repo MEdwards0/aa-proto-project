@@ -1,0 +1,81 @@
+  .custom-header {
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      color: white;
+      position: fixed;
+      top: 1%;
+      right: 16%;
+      display: grid;
+  }
+
+  .signout a {
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+  }
+
+  .signout a:hover {
+      text-decoration: underline;
+  }
+
+  tr.user-rows:hover {
+      background: darkgray;
+      border-top: 1px;
+      border-bottom: 1px; 
+  }
+
+  .custom-header {
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      color: white;
+      position: fixed;
+      top: 1%;
+      right: 16%;
+      display: grid;
+  }
+
+  .signout a {
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+  }
+
+  .signout a:hover {
+      text-decoration: underline;
+  }
+
+  table.table-view {
+      width: 80%;
+      border: 1px solid;
+      margin-bottom: 40px;
+  }
+
+  table.table-view th {
+      background: greenyellow;
+  }
+
+  table.table-view th {
+      background: greenyellow;
+      justify-content: center;
+  }
+
+  table {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+  }
+
+  #selected-table {
+    width: 40%;
+    border: 1px solid;
+  }
+
+  td {
+    text-align: center;
+  }
+
+  #input-id, #input-username {
+    box-sizing: content-box;
+    height: 18px;
+  }
+
+  table.user-rows:hover {
+    background: gray;
+  }
+

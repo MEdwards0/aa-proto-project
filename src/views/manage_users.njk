@@ -2,6 +2,7 @@
   {% block head %}
 <!--[if !IE 8]><!-->
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <link rel="stylesheet" type="text/css" href="/styles/manage_users.css">
 {% endblock %}
 {% block content %}
 
@@ -16,10 +17,6 @@
     <table class="table-view">
         <h3 id='error'>There was an error</h3>
     </table>
-
-    
-
-
 
     <style>
         .table-view{
@@ -37,7 +34,7 @@
 
     </style>
   {%else%}
-    <table class="table-view">
+    <table id='table-view' class="table-view">
         <tr>
             <th>ID</th>
             <th>Username</th>
@@ -46,14 +43,14 @@
         </tr>
 
         {% for user in page.users %}
-            <tr>
-                <td>user.id</td>
-                <td>user.username</td>
-                <td>user.activeAccount</td>
-                <td>user.isAdmin</td>
+            <tr class='user-rows'>
+                <td>{{user.id}}</td>
+                <td>{{user.username}}</td>
+                <td>{{user.activeAccount}}</td>
+                <td>{{user.isAdmin}}</td>
             </tr>
         {% else %}
-            <tr>
+            <tr class='user-rows'>
                 <td>EMPTY</td>
                 <td>EMPTY</td>
                 <td>EMPTY</td>
@@ -64,16 +61,17 @@
   {%endif%}
 
 
-  <table>
+  <table id='selected-table'>
         <tr>
             <th>User ID Selected</th>
             <th>Username Selected</th>
         </tr>
         <tr>
-            <td id='input-id' name='id'>
+            <td id='input-id'>
 
             </td>
-            <td id='input-username' name='username'>
+            <td id='input-username'>
+
             </td>
         </tr>
         <tr>
@@ -86,18 +84,18 @@
         </tr>
         <tr>
           <form method='POST' action='activate-accounts-verify'>
-            <input name='id' id='verify-id' type='hidden'></input>
-            <input name='username' id='verify-username' type='hidden'></input>
+            <input name='id' id='verify-id' type='hidden' required></input>
+            <input name='username' id='verify-username' type='hidden' required></input>
             <td>
-                <button id='activate-account-button' type='submit'>Activate Account</button>
+                <button id='activate-account-button' type='submit'>Enable Account</button>
             </td>
           </form>
 
-          <form method='POST' action='activate-accounts-admin'>
-            <input name='id' id='admin-id' type='hidden'></input>
-            <input name='username' id='admin-username' type='hidden'></input>
+          <form method='POST' action='make-account-admin'>
+            <input name='id' id='admin-id' type='hidden' required></input>
+            <input name='username' id='admin-username' type='hidden' required></input>
             <td>
-                <button id='make-admin-button' type='submit'>Make Admin</button>
+                <button id='make-admin-button' type='submit'>Promote Admin</button>
             </td>
           </form>
         </tr>
@@ -110,27 +108,6 @@
     </div>
   </div>
 </div>
-
-  <style>
-    .custom-header {
-    font-family: "Trebuchet MS", Helvetica, sans-serif;
-    color: white;
-    position: fixed;
-    top: 1%;
-    right: 16%;
-    display: grid;
-  }
-
-  .signout a {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-  }
-
-  .signout a:hover {
-    text-decoration: underline;
-  }
-  </style>
 
 {% endblock %}
 {% block bodyEnd %}

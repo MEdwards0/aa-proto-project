@@ -19,9 +19,11 @@ const factory = ({
     addCustomer,
     addCustomerSecurity,
     getAllUsers,
+    toggleAdmin,
+    toggleAccountActive
 }) => {
 
-    const handleAddUser = async (username, password, admin=false) => {
+    const handleAddUser = async (username, password) => {
         const result = await addUser(username, password);
 
         if (result.error) {
@@ -30,7 +32,14 @@ const factory = ({
                 error: result.error
             }
         }
-        const response = await addAdmin(result.id, admin);
+        const response = await addAdmin(result.id);
+
+        if (!response) {
+            return {
+                status: false,
+                error: true
+            }
+        }
         
         return {
             status: true,
@@ -228,6 +237,14 @@ const factory = ({
         }
     };
 
+    const handleToggleAdmin = async (id) => {
+        await toggleAdmin(id);
+    }
+
+    const handleToggleAccountActive = async (id, username) => {
+        await toggleAccountActive(id, username);
+    };
+
     return {
         handleAddUser,
         handleLogIn,
@@ -241,7 +258,9 @@ const factory = ({
         handleAddNewCustomerAccessToken,
         handleCheckCustomerAccessToken,
         handleAddNewCustomer,
-        handleGetAllUsers
+        handleGetAllUsers,
+        handleToggleAdmin,
+        handleToggleAccountActive
     }
 };
 

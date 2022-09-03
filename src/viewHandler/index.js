@@ -679,7 +679,7 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn && user.userLevel == 'admin') {
             try {
-                const result = await database.handleGetAllUsers(user.username); // Put id here to ignore user.
+                const result = await database.handleGetAllUsers(user.username); // Put username here to ignore user.
 
                 if (result.error) {
                     const page = { error: result.error };
@@ -705,11 +705,18 @@ const handler = () => {
     };
 
     const activateAccountSubmit = async (req, res) => {
+        const {id, username} = req.body;
 
+        await database.handleToggleAccountActive(id, username);
+
+        res.redirect('/manage-users');
     };
 
     const makeAccountAdminSubmit = async (req, res) => {
 
+        await database.handleToggleAdmin(req.body.id);
+
+        res.redirect('/manage-users');
     };
 
     return {

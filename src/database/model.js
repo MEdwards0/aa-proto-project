@@ -31,15 +31,21 @@ const addUser = async (username, password) => {
     }
 };
 
-const addAdmin = async (id, admin) => {
+const addAdmin = async (id) => {
 
-    if (!admin) {
-        await client.query(`INSERT INTO "admin" (user_id) VALUES (${id})`);
+    // if (!admin) {
+    //     await client.query(`INSERT INTO "admin" (user_id) VALUES (${id})`);
+    //     return true;
+    // }
+
+    try {
+        await client.query(`INSERT INTO "admin" ("user_id", "isAdmin") VALUES (${id}, 'false')`);
         return true;
+    } catch (error) {
+        console.log(error);
+        return false;
     }
-
-    await client.query(`INSERT INTO "admin" (user_id, isAdmin) VALUES (${id}, 'true')`);
-    return true;
+    
 };
 
 const getUser = async (username) => {
@@ -363,8 +369,9 @@ const getAllUsers = async (username) => {
         const users = [];
 
         for (let i = 0; i < result.rows.length; i++) {
-            const admin = await client.query(`SELECT "is_admin" FROM "admin" WHERE "user_id" = ${result.rows[i].id};`);
-            
+
+
+            const admin = await client.query(`SELECT "isAdmin" FROM "admin" WHERE "user_id" = ${result.rows[i].id};`);
             users.push({
                 username: result.rows[i].username,
                 activeAccount: result.rows[i].accountActive,
@@ -382,7 +389,46 @@ const getAllUsers = async (username) => {
             error: true
         }
     }
+};
 
+const toggleAdmin = async (id) => {
+    try {
+        const query = `SELECT * FROM "admin" WHERE "user_id" = ${id};`;
+        const response = await client.query(query);
+
+        console.log('DEBUG - Server response. typeof isAdmin is:', typeof response.rows[0].isAdmin);
+
+        if (response.rows[0].isAdmin) {
+            const request = `UPDATE "admin" SET "isAdmin" = 'false' WHERE "user_id" = ${id};`;
+            await client.query(request);
+        } else {
+            const request = `UPDATE "admin" SET "isAdmin" = 'true' WHERE "user_id" = ${id};`;
+            await client.query(request);
+        }
+    } catch (error) {
+        console.log('model.js toggleAdmin\n\n', error);
+    }
+};
+
+const toggleAccountActive = async (id, username) => {
+    try {
+        const query = `SELECT * FROM "user" WHERE "username" = '${username}' AND "id" = ${id};`;
+        const response = await client.query(query);
+
+        console.log('DEBUG - Server response. typeof accountActive is:', typeof response.rows[0].accountActive);
+
+        if (response.rows[0].accountActive) {
+            console.log('Setting accountActive to false \n');
+            const request = `UPDATE "user" SET "accountActive" = 'false' WHERE "id" = ${id} AND "username" = '${username}';`;
+            await client.query(request);
+        } else {
+            console.log('Setting accountActive to true \n');
+            const request = `UPDATE "user" SET "accountActive" = 'true' WHERE "id" = ${id} AND "username" = '${username}';`;
+            await client.query(request);
+        }
+    } catch (error) {
+        console.log('model.js toggleAccountActive \n\n', error);
+    }
 };
 
 
@@ -408,5 +454,7 @@ module.exports = {
     verifyCustomerAccessToken,
     addCustomer,
     addCustomerSecurity,
-    getAllUsers
+    getAllUsers,
+    toggleAdmin,
+    toggleAccountActive
 };
