@@ -1,7 +1,5 @@
 - add breadcrumbs to new claim screen.
 
-- add admin function to make pending accounts active.
-
 - move dot-env to a config file that takes in dotenv and export from that file.
 
 - tidy up files
