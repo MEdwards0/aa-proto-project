@@ -241,7 +241,6 @@ const addClaim = async (object) => {
 
 
 const addCustomer = async (customer) => {
-    // console.log('customer object is:', customer) // debug checking input
 
     try {
         const query = `INSERT INTO "customer" 
@@ -251,9 +250,15 @@ const addCustomer = async (customer) => {
 
         const customerQuery = `SELECT * FROM "customer" WHERE "NINO" = '${customer.NINO}'`;
         const result = await client.query(customerQuery);
+
+        result.error = false;
         return result.rows[0];
     } catch (error) {
         console.log('model.js: addCustomer \n\n', error)
+        return {
+            error: true,
+            errorMessage: 'Error adding customer to database.'
+        };
     };
 };
 
@@ -348,6 +353,7 @@ const verifyCustomerAccessToken = async (token) => {
 
 const addCustomerSecurity = async (customer) => {
     try {
+
         const answerOneFinal = await encryptInput(customer.answerOne);
         const answerTwoFinal = await encryptInput(customer.answerTwo);
         const answerThreeFinal = await encryptInput(customer.answerThree);
@@ -356,8 +362,16 @@ const addCustomerSecurity = async (customer) => {
     VALUES ('${customer.NINO}', '${customer.questionOne}', '${answerOneFinal}', '${customer.questionTwo}', '${answerTwoFinal}', '${customer.questionThree}', '${answerThreeFinal}');`;
 
         await client.query(query);
+    
+        return {error: false, errorMessage: false};
+
     } catch (error) {
         console.log('model.js addCustomerSecurity \n\n', error);
+
+        return {
+            error: true,
+            errorMessage: 'There was an error adding customer security to the database.'
+        }
     };
 };
 
@@ -396,8 +410,6 @@ const toggleAdmin = async (id) => {
         const query = `SELECT * FROM "admin" WHERE "user_id" = ${id};`;
         const response = await client.query(query);
 
-        console.log('DEBUG - Server response. typeof isAdmin is:', typeof response.rows[0].isAdmin);
-
         if (response.rows[0].isAdmin) {
             const request = `UPDATE "admin" SET "isAdmin" = 'false' WHERE "user_id" = ${id};`;
             await client.query(request);
@@ -414,8 +426,6 @@ const toggleAccountActive = async (id, username) => {
     try {
         const query = `SELECT * FROM "user" WHERE "username" = '${username}' AND "id" = ${id};`;
         const response = await client.query(query);
-
-        console.log('DEBUG - Server response. typeof accountActive is:', typeof response.rows[0].accountActive);
 
         if (response.rows[0].accountActive) {
             console.log('Setting accountActive to false \n');

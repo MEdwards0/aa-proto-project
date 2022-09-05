@@ -5,22 +5,17 @@
 {% endblock %}
 {% block content %}
 
-<header class="custom-header">
-  <span class="account">USER: {{profile.username}}</span>
-  <span class="signout"><a href="/log-out">Sign Out</a></span>
-</header>
-
 <div id="banner" class="govuk-panel govuk-panel--confirmation">
   <h1 class="govuk-panel__title">
-    Application Denied
+    Customer unable to be added to the database.
   </h1>
   <div class="govuk-panel__body">
-    {%if page.databaseError == false%}The claimant is ineligible for this benefit. {%else%} {{page.claimMessage}} {%endif%}
+    {{page.errorMessage}} 
   </div>
 </div>
 
 <strong>
-  <span class="govuk-warning-text" id='manual_link'><a href='/view-customer-data/{{page.nino}}'>Click here to go back to user summary screen</a></span>
+<a href='/'>Click here to go back to the home screen.</a>
 </strong>
 
 <style>
@@ -29,27 +24,6 @@
       {# color: red; #}
       background: red;
   }
-
-  .custom-header {
-    font-family: "Trebuchet MS", Helvetica, sans-serif;
-    color: white;
-    position: absolute;
-    top: 1%;
-    right: 16%;
-    display: grid;
-  }
-
-  .signout a {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-  }
-
-  .signout a:hover {
-    text-decoration: underline;
-  }
-
-  
 
 </style>
 

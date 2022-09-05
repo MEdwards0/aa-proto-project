@@ -3,3 +3,17 @@
 - move dot-env to a config file that takes in dotenv and export from that file.
 
 - tidy up files
+    - remove commented out code
+    - remove useless comments
+
+- add meaningful comments
+
+- clean up UI in places
+
+- change all inputs to be upper case when sending off any data to the server.
+
+Optional:
+
+- Add logger to the program instead of console.logs
+
+- set up docker container

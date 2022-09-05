@@ -17,17 +17,16 @@ const handler = () => {
         }
 
         try {
-            // addClassMethods(user);
             if (user.token != undefined && user.activeAccount && user.loggedIn) {
                 const profile = {
                     username: user.username,
                     userLevel: user.userLevel
-                    // id: req.session.id
                 };
 
                 const result = await database.handleGetToken(user.token, user.username);
 
-                console.log('User level is:', user.userLevel)
+                user.removeCustomerInfo(); // Remove any customer information stored in the user class.
+
                 result.status ? res.render('user_home', { profile: profile }) : res.redirect('/log-out');
 
             } else {
@@ -47,12 +46,10 @@ const handler = () => {
             const user = req.session.class;
 
             if (user == undefined || user.token == undefined) {
-                console.log('user or token not defined.');
                 const page = { error: true, activeAccount: true };
                 res.render('login', { error: page });
 
             } else {
-                console.log();
                 addClassMethods(user); // just adding class methods here in case they are to be used at any point in this route.
                 const result = await database.handleGetToken(user.token, user.username);
                 if (!result.status) {
@@ -99,14 +96,9 @@ const handler = () => {
         const result = await database.handleLogIn(username, password);
 
         // Check the user account level if there is one to be found:
-        console.log(`result.error is : ${result.error}`);
         if (!result.error) {
-            // req.session.token = result.token;
-            // req.session.username = result.profile.username;
 
             // assign the user the correct class depending on admin level.
-
-            console.log(`result.admin is ${result.profile.admin}`);
 
             if (result.profile.admin) {
                 req.session.class = req.session.id = new Admin(username, password, result.profile.accountActive);
@@ -120,8 +112,6 @@ const handler = () => {
                 req.session.id = new User(username, password, result.profile.accountActive);
             };
 
-            // console.log(`User's ActiveAccount status is: ${user.activeAccount}`);
-
             user.setToken(result.token);
             user.logIn();
 
@@ -132,11 +122,8 @@ const handler = () => {
                 res.render('login', { page: page })
             };
 
-            // res.redirect('user-home');
         } else {
-            console.log('In signin section else block');
             const page = { error: result.error, activeAccount: true };
-            console.log(`page.error is: ${page.error}`);
             res.render('login', { page: page });
         };
     };
@@ -144,19 +131,25 @@ const handler = () => {
     const logOut = async (req, res) => {
         try {
             const user = req.session.class;
-            addClassMethods(user);
+
+            if (user == undefined) {
+                req.session.destroy();
+                res.redirect('/');
+                return;
+            } else {
+                addClassMethods(user);
+            }
 
             await database.handleRemoveToken(user.token);
             user.removeCustomerInfo();
             user.clearToken();
             user.logOut();
 
-            console.log('logging out.')
-            req.session.destroy();
-            console.log('going to home screen'); // destroy the current session.
+            req.session.destroy(); // destroy the current session.
             res.redirect('/');
+
         } catch (error) {
-            console.log('error');
+            console.log(error);
             req.session.destroy();
             res.redirect('/');
         };
@@ -205,8 +198,6 @@ const handler = () => {
             addClassMethods(user);
         };
 
-        user.sayHello();
-
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
                 const result = await database.handleGetToken(user.token, user.username);
@@ -237,9 +228,7 @@ const handler = () => {
                         res.render('validate_nino', { page: page });
                     } else {
                         const result = await database.handleGetSecurityQuestions(req.body.nino);
-                        // finally trust for the nino to be put in cookies
-                        // res.cookie('nino', req.body.nino);
-                        console.log(user.setCustomerNino);
+                        // finally trust for the nino to be set in user class
 
                         user.setCustomerNino(req.body.nino);
                         page.questions = result.questions;
@@ -281,8 +270,6 @@ const handler = () => {
 
                 if (!token.error) {
 
-                    // console.log('DEBUG: checkSecurityAnswers', user.customerNino, req.body.answerOne, req.body.answerTwo, req.body.answerThree)
-
                     const result = await database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
 
                     page.error = result.error;
@@ -311,7 +298,6 @@ const handler = () => {
                         const token = await database.handleAddNewCustomerAccessToken(user.username, user.customerNino);
                         // Set the customer access token to the user class
                         user.setCustomerAccessToken(token)
-                        // req.session.customerAccessToken = token;
 
                         res.redirect(`/view-customer-data/${page.nino}`);
                     };
@@ -335,8 +321,6 @@ const handler = () => {
         } else {
             addClassMethods(user);
         }
-
-        // addClassMethods(user);
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
@@ -405,12 +389,6 @@ const handler = () => {
             addClassMethods(user);
         }
 
-        // addClassMethods(user);
-
-        console.log('ATTEMPTING TO VIEW CUSTOMER DATA')
-
-        console.log(`user.token is: ${req.session.token}, user.activeAccount is: ${user.activeAccount}, user.loogedIn is ${user.loggedIn}`);
-
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
 
@@ -420,40 +398,27 @@ const handler = () => {
                     error: false
                 }
 
-                console.log('Checking token:');
-
                 // check token validity
                 const result = await database.handleGetToken(user.token, user.username);
                 // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
-
-                console.log('result.error is:', result.error);
-
-                console.log('checking nino');
 
                 // check nino validity
                 const nino = await database.handleValidateNino(user.customerNino);
                 // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
-                console.log(`nino.error is: ${nino.error}`);
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
-                console.log('Checking access token:');
-                // check security questions
+                // check customer access token
                 const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
                 // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
-                console.log(`security.error is: ${security.error}`);
-
-                console.log(`checking customer response:`)
-
                 const customer = await database.handleGetCustomer(page.nino);
 
-                console.log(`customer.error is: ${customer.error}}`);
 
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
@@ -474,9 +439,7 @@ const handler = () => {
                 if (page.error) {
                     res.redirect('/');
                 } else {
-                    console.log('RENDERING VIEW_CUSTOMER_DATA')
                     res.render('view_customer_data', { page: page });
-                    // res.send('success: render view_customer_data page');
                 };
             } catch (error) {
                 console.log(error);
@@ -497,8 +460,6 @@ const handler = () => {
         } else {
             addClassMethods(user);
         }
-
-        // addClassMethods(user);
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
@@ -524,7 +485,7 @@ const handler = () => {
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
                 // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
-                // do claim logic here, returns an object with an error and a claim message, if error is true, there was an error.
+                // claim process logic here, returns an object with an error and a claim message, if application.error is true, there was an error.
                 const application = claim.processClaim(req);
 
                 if (application.error) {
@@ -536,7 +497,6 @@ const handler = () => {
                 page.claimMessage = application.message;
 
                 if (page.error) {
-
                     res.render('failure_screen', { page: page });
                 } else {
 
@@ -552,6 +512,7 @@ const handler = () => {
                         console.log(response.errorMessage);
                         page.databaseError = response.error;
                         page.claimMessage = 'There was an error updating the database';
+
                         res.render('failure_screen', { page: page });
                     } else {
                         res.render('success_screen', { page: page });
@@ -570,7 +531,14 @@ const handler = () => {
 
     const addCustomerForm = async (req, res) => {
         const page = {
-            error: false
+            error: false,
+            nino: req.session.nino || '',
+            fName: req.session.fName || '',
+            mName: req.session.mName || '',
+            lName: req.session.lName || '',
+            dobDay: req.session.dobDay || '',
+            dobMonth: req.session.dobMonth || '',
+            dobYear: req.session.dobYear || ''
         };
 
         res.render('new_customer', { page: page });
@@ -578,7 +546,30 @@ const handler = () => {
 
     const addCustomerSecurityForm = async (req, res) => {
 
+        const result = await database.handleValidateNino(req.body.nino);
+
+        // Check the date input format
+
+        req.body.dobYear.length != 4 ? result.message = 'Year format incorrect.' : result.message = result.message;
+
+        req.body.dobMonth.length != 2 ? result.message = 'Month format incorrect.' : result.message = result.message;
+
+        req.body.dobDay.length != 2 ? result.message = 'Day format incorrect.' : result.message = result.message;
+
+        
+
+        // Set the input date to the correct format.
+
         const dob = new Date(req.body.dobYear, Number(req.body.dobMonth) - 1, req.body.dobDay);
+
+
+        // Check date inputs are not invalid
+
+        const dateNow = new Date();
+
+        if (dob.getTime() > dateNow.getTime()) {
+            result.message = 'Date cannot be in the future.';
+        }
 
         const page = {
             fName: req.body.fName,
@@ -588,25 +579,41 @@ const handler = () => {
             nino: req.body.nino
         };
 
-        const result = await database.handleValidateNino(req.body.nino);
-
         // Validate nino length
 
         if (page.nino.length != 9) {
-            result.message = 'wrong nino length';
+            result.message = 'Invalid nino length.';
         }
+
+        req.session.nino = req.body.nino;
+        req.session.fName = page.fName;
+        req.session.mName = page.mName
+        req.session.lName = page.lName;
+        req.session.dobYear = req.body.dobYear;
+        req.session.dobMonth = req.body.dobMonth;
+        req.session.dobDay = req.body.dobDay;
 
         // We want result.error to be true, so we know that there is not a nino in the db and a message so it wasnt because of another error.
         if (result.error && result.message == 'undefined') {
-            req.session.nino = req.body.nino;
-            req.session.fName = page.fName;
-            req.session.lName = page.lName;
+    
             req.session.dob = page.dob;
 
             res.render('new_customer_security', { page: page });
 
         } else {
-            page.error = true;
+
+            const page = {
+                error: true,
+                errorMessage: result.message,
+                nino: req.session.nino || '',
+                fName: req.session.fName || '',
+                mName: req.session.mName || '',
+                lName: req.session.lName || '',
+                dobDay: req.session.dobDay || '',
+                dobMonth: req.session.dobMonth || '',
+                dobYear: req.session.dobYear || ''
+            }
+
             res.render('new_customer', { page: page });
         };
     };
@@ -634,9 +641,14 @@ const handler = () => {
             const result = await database.handleAddNewCustomer(customer)
 
             if (!result.error) {
+                req.session.destroy(); // reset session data
                 res.render('confirm_user_created');
             } else {
-                res.send('error creating a customer.', result.errorMessage)
+                const page = {
+                    errorMessage: result.errorMessage
+                };
+
+                res.render('add_customer_failure', {page: page})
             }
         }
     };
@@ -682,7 +694,10 @@ const handler = () => {
                 const result = await database.handleGetAllUsers(user.username); // Put username here to ignore user.
 
                 if (result.error) {
-                    const page = { error: result.error };
+                    const page = { 
+                        error: result.error,
+                        username: user.username
+                    };
                     res.render('manage_users', {page: page});
                     return;
                 };
@@ -705,7 +720,23 @@ const handler = () => {
     };
 
     const activateAccountSubmit = async (req, res) => {
+        const user = req.session.class;
         const {id, username} = req.body;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return
+        } else {
+            addClassMethods(user);
+        };
+
+        console.log('check user object \n\n', user);
+
+        if (!user.loggedIn || user.userLevel != 'admin') {
+            // Stop the user pressing back on the browser to change a user without having the correct permissions.
+            res.redirect('/');
+            return;
+        }
 
         await database.handleToggleAccountActive(id, username);
 
@@ -713,6 +744,22 @@ const handler = () => {
     };
 
     const makeAccountAdminSubmit = async (req, res) => {
+        const user = req.session.class;
+
+        if (user == undefined) {
+            res.redirect('/');
+            return
+        } else {
+            addClassMethods(user);
+        };
+
+        console.log('check user object \n\n', user);
+
+        if (!user.loggedIn || user.userLevel != 'admin') {
+            // Stop the user pressing back on the browser to change a user without having the correct permissions.
+            res.redirect('/');
+            return;
+        }
 
         await database.handleToggleAdmin(req.body.id);
 

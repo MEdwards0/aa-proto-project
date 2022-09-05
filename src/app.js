@@ -39,16 +39,6 @@ nunjucks.configure(
     },
 );
 
-// Misc Middleware
-
-
-// const { addClassMethods } = require('./classes/methods');// require('../classes/methods');
-
-// app.use((req, res, next) => {
-//     addClassMethods(req.session.class);
-//     next()
-// })
-
 //  GETS
 
 app.get('/', handler.logInPage);
@@ -81,12 +71,9 @@ app.post('/make-account-admin', handler.makeAccountAdminSubmit);
 
 // DEV
 
-app.get('/clearCookies', (req, res) => {
-    res.clearCookie('token');
-    res.clearCookie('username');
-    res.clearCookie('id');
-    res.clearCookie('nino');
-    res.send('cookies cleared');
+app.get('/clearSession', (req, res) => {
+    req.session.destroy();
+    res.send('session cleared');
 });
 
 // POSTS
@@ -108,5 +95,3 @@ app.post('/add-customer-security', handler.addCustomerSecurityForm);
 app.post('/add-customer-submit', handler.addCustomerSubmit)
 
 module.exports = app;
-
-

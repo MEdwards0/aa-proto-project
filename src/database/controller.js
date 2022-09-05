@@ -209,14 +209,29 @@ const factory = ({
     };
 
     const handleAddNewCustomer = async (customer) => {
+        let errorMessage;
+
         try {
-            await addCustomer(customer);
-            await addCustomerSecurity(customer);
+            const addCustomerResult = await addCustomer(customer);
+            const customerSecurityResult = await addCustomerSecurity(customer);
+
+            errorMessage = addCustomerResult.errorMessage || customerSecurityResult.errorMessage || false;
+
+            if (customerSecurityResult.error || addCustomerResult.error) {
+
+                return {
+                    error: true,
+                    errorMessage: errorMessage
+                };
+            }
+
             return {error: false}
         } catch (error) {
+            console.log('controller.js handleAddNewCustomer \n\n', error);
+
             return {
                 error: true,
-                errorMessage: error
+                errorMessage: errorMessage
             }
         }
         

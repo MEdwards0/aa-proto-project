@@ -20,7 +20,7 @@
   <select class="govuk-select" id="subject" name="questionOne" aria-describedby="subject-hint">
     <option value="What was the name of your first school?" selected>What was the name of your first school?</option>
     <option value="What city were you born in?">What city were you born in?</option>
-    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+    <option value="What is your mother''s maiden name?">What is your mother's maiden name?</option>
     <option value="What is the name of your first pet?">What is the name of your first pet?</option>
     <option value="What is the make of your first car?">What is the make of your first car?</option>
   </select>
@@ -47,6 +47,7 @@
 <h4 class="govuk-heading-m">Answer</h4>
 <input class="govuk-input govuk-input--width-20" type="text" name="answerTwo" placeholder="" required="required">
 </br>
+</br>
 <div class="govuk-form-group">
   <label class="govuk-label" for="question 3">
     Security Question 3
@@ -65,8 +66,16 @@
 <h4 class="govuk-heading-m">Answer</h4>
 <input class="govuk-input govuk-input--width-20" type="text" name="answerThree" placeholder="" required="required">
 </br>
-<button class="govuk-button" data-module="govuk-button" id="submit" type="submit">Submit</button>
+</br>
+<a href="/add-customer"><button class="govuk-button" type="button" formnovalidate>Back</button></a>
+<button id="submit-button" class="govuk-button" data-module="govuk-button" id="submit" type="submit">Submit</button>
 </form>
+
+<style>
+  {# #submit-button {
+    margin-top: 50px;
+  } #}
+</style>
 
 {% endblock %}
 {% block bodyEnd %}

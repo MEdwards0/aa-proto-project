@@ -5,22 +5,25 @@
 {% endblock %}
 {% block content %}
   <h1 class="govuk-heading-xl">Create Account</h1>
-  {%if page.error%} <h2 id='error'>There was an error.</h2> {%endif%}
+  {%if page.error%} 
+    <h2 id='error'>There was an error.</h2>
+    <p class='errorMessage'>{{page.errorMessage}}</p>
+   {%endif%}
 <form id='loginForm' class="govuk-label--l" action='add-customer-security' method="POST">
 <h3 class="govuk-heading-l">Customer National Insurance</h3>
-  <input class="govuk-input govuk-input--width-20" id='nino'type="text" name="nino" placeholder="" required="required">
+  <input class="govuk-input govuk-input--width-20" id='nino'type="text" name="nino" placeholder="" required="required" maxlength="9" minlength="9" value="{{page.nino}}">
 </br>
 </br>
 <h3 class="govuk-heading-l">First Name</h3>
-<input class="govuk-input govuk-input--width-20" type="text" name="fName" placeholder="" required="required">
+<input class="govuk-input govuk-input--width-20" type="text" name="fName" placeholder="" required="required" value="{{page.fName}}">
 </br>
 </br>
 <h3 class="govuk-heading-l">Middle Name (optional)</h3>
-<input class="govuk-input govuk-input--width-20" type="text" name="mName" placeholder="">
+<input class="govuk-input govuk-input--width-20" type="text" name="mName" placeholder="" value="{{page.mName}}">
 </br>
 </br>
 <h3 class="govuk-heading-l">Last Name</h3>
-<input class="govuk-input govuk-input--width-20" type="text" name="lName" placeholder="" required="required">
+<input class="govuk-input govuk-input--width-20" type="text" name="lName" placeholder="" required="required" value="{{page.lName}}">
 </br>
 </br>
 
@@ -40,7 +43,7 @@
           <label class="govuk-label govuk-date-input__label" for="dob-issued-day">
             Day
           </label>
-          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-day" name="dobDay" type="text" inputmode="numeric" required>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-day" name="dobDay" type="number" inputmode="numeric" maxlength="2" min="1" max="31" value="{{page.dobDay}}" required>
         </div>
       </div>
       <div class="govuk-date-input__item">
@@ -48,7 +51,7 @@
           <label class="govuk-label govuk-date-input__label" for="dob-issued-month">
             Month
           </label>
-          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-month" name="dobMonth" type="text" inputmode="numeric" required>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="dob-issued-month" name="dobMonth" type="number" inputmode="numeric" maxlength="2" min="1" max="12" value="{{page.dobMonth}}" required>
         </div>
       </div>
       <div class="govuk-date-input__item">
@@ -56,21 +59,24 @@
           <label class="govuk-label govuk-date-input__label" for="dob-issued-year">
             Year
           </label>
-          <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="dob-issued-year" name="dobYear" type="text" inputmode="numeric" required>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="dob-issued-year" name="dobYear" type="number" inputmode="numeric" maxlength="4" value="{{page.dobYear}}" required>
         </div>
       </div>
     </div>
 
   </fieldset>
 </div>
-</br>
-</br>
+
+<a href="/log-out"><button class="govuk-button" data-module="govuk-button" id="login" type="button" formnovalidate>Exit</button></a>
 <button class="govuk-button" data-module="govuk-button" id="login" type="submit">Continue</button>
 </form>
 
 <style>
-    #error {
-        color: red;
+    #error, .errorMessage {
+      color: red;
+      font-size: 1.2em;
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      text-decoration: underline;
     }
 </style>
 

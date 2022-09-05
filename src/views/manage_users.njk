@@ -7,7 +7,7 @@
 {% block content %}
 
 <header class="custom-header">
-  <span class="account">USER: {{profile.username}}</span>
+  <span class="account">USER: {{page.username}}</span>
   <span class="signout"><a href="/log-out">Sign Out</a></span>
 </header>
 
@@ -87,7 +87,7 @@
             <input name='id' id='verify-id' type='hidden' required></input>
             <input name='username' id='verify-username' type='hidden' required></input>
             <td>
-                <button id='activate-account-button' type='submit'>Enable Account</button>
+                <button class="govuk-button" id='activate-account-button' type='submit'>Enable Account</button>
             </td>
           </form>
 
@@ -95,7 +95,7 @@
             <input name='id' id='admin-id' type='hidden' required></input>
             <input name='username' id='admin-username' type='hidden' required></input>
             <td>
-                <button id='make-admin-button' type='submit'>Promote Admin</button>
+                <button class="govuk-button" id='make-admin-button' type='submit'>Promote Admin</button>
             </td>
           </form>
         </tr>
@@ -104,7 +104,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-half">
     <div id="user-action-section">
-      <a href='/admin-home'><button class="govuk-button" data-module="govuk-button" type="button">Exit</button></a>
+      <a href='/admin-home'><button id="exit-button" class="govuk-button" data-module="govuk-button" type="button">Exit</button></a>
     </div>
   </div>
 </div>
