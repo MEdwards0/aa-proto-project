@@ -1,19 +1,17 @@
-- add breadcrumbs to new claim screen.
+ - add breadcrumbs to new claim screen.
 
-- move dot-env to a config file that takes in dotenv and export from that file.
-
-- tidy up files
+ - tidy up files
     - remove commented out code
     - remove useless comments
 
-- add meaningful comments
+ - add meaningful comments
 
-- clean up UI in places
+ - clean up UI in places
+    - home screen create user and create customer to be made buttons or links in the footer, or hidden entirely.
 
-- change all inputs to be upper case when sending off any data to the server.
 
 Optional:
 
-- Add logger to the program instead of console.logs
+ - Add logger to the program instead of console.logs
 
-- set up docker container
+ - set up docker container

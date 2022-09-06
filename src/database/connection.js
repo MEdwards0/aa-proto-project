@@ -1,22 +1,23 @@
 const { Client } = require('pg');
+const config = require('../config');
 
 // Initial connection to the database using default database
 
 const setup = new Client({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    password: process.env.DB_PASS,
-    port: process.env.DB_PORT
+    user: config.databaseUser,
+    host: config.databaseHost,
+    password: config.databasePass,
+    port: config.databasePort
 })
 
 // User defined database connection
 
 const client = new Client({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    password: process.env.DB_PASS,
-    port: process.env.DB_PORT,
-    database: process.env.DATABASE
+    user: config.databaseUser,
+    host: config.databaseHost,
+    password: config.databasePass,
+    port: config.databasePort,
+    database: config.database
 });
 
 // Function to get the names of all databases in the database using the default connection
@@ -43,7 +44,7 @@ const setupDatabase = async () => {
     let databaseExists = false;
 
     for (i = 0; i < databases.length; i++) {
-        if (databases[i].datname == process.env.DATABASE) {
+        if (databases[i].datname == config.database) {
             // console.log("Database already exists");
 
             // set flag to true if database exists
@@ -53,7 +54,7 @@ const setupDatabase = async () => {
 
     // if database does not exist, create it
     if (!databaseExists) {
-        console.log(`Creating a new database with ${process.env.DATABASE}`);
+        console.log(`Creating a new database with ${config.database}`);
         await createDatabase();
     };
 
@@ -63,7 +64,7 @@ const setupDatabase = async () => {
 };
 
 async function createDatabase() {
-    // const query = `CREATE DATABASE "${process.env.DATABASE}"`;
+    const query = `CREATE DATABASE "${config.database}"`;
     await setup.query(query);
 };
 
@@ -100,8 +101,7 @@ const buildUserTable = async () => {
             username character varying(50),
             password character varying(200),
             "accountActive" boolean NOT NULL DEFAULT false,
-            CONSTRAINT user_username_key UNIQUE (username),
-            CONSTRAINT user_pkey PRIMARY KEY (id)
+            CONSTRAINT user_username_key UNIQUE (username)
         )`;
     await client.query(query);
 };

@@ -4,7 +4,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session =  require('express-session');
-require('dotenv').config();
 
 
 const app = express();

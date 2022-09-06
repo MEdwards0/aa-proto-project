@@ -562,8 +562,9 @@ const handler = () => {
 
         // Set the input date to the correct format.
 
-        const dob = new Date(req.body.dobYear, Number(req.body.dobMonth) - 1, req.body.dobDay);
+        // Dates between client and server can vary. This implementation seems to work correctly now.
 
+        const dob = new Date(Date.parse(`${req.body.dobYear}-${req.body.dobMonth}-${req.body.dobDay}`));
 
         // Check date inputs are not invalid
 
