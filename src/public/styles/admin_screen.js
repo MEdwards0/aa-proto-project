@@ -40,6 +40,12 @@ for (let i = 0; i < tableRows.length; i++) {
         inputId.innerHTML = tableRows[i].childNodes[1].innerHTML;
         inputUsername.innerHTML = tableRows[i].childNodes[3].innerHTML;
 
+        if (inputId.innerHTML == 'EMPTY' || inputUsername.innerHTML == 'EMPTY') {
+            // If the inputs would be empty, then don't put those in the fields.
+            inputId.innerHTML = '';
+            inputUsername.innerHTML = '';
+        };
+
 
 
         if (tableRows[i].childNodes[5].innerHTML == 'true') {
@@ -53,5 +59,19 @@ for (let i = 0; i < tableRows.length; i++) {
         } else {
             makeAdminButton.innerHTML = 'Promote Admin';
         };
+
+        // hide buttons, if fields are empty.
+
+        if (tableRows[i].childNodes[5].innerHTML == 'EMPTY') {
+            activateAccountButton.style.display = 'none';
+        } else {
+            activateAccountButton.style.display = 'block';
+        };
+
+        if (tableRows[i].childNodes[7].innerHTML == 'EMPTY') {
+            makeAdminButton.style.display = 'none';
+        } else {
+            makeAdminButton.style.display = 'block';
+        }
     });
 };

@@ -81,7 +81,7 @@ const handler = () => {
 
     const createUser = async (req, res) => {
         const { username, password } = req.body;
-        const result = await database.handleAddUser(username, password);
+        const result = await database.handleAddUser(username.toUpperCase(), password);
 
         if (result.status) {
             res.render('confirm_user_created');
@@ -93,7 +93,7 @@ const handler = () => {
     const signIn = async (req, res) => {
         let user; // set to contain user class
         const { username, password } = req.body;
-        const result = await database.handleLogIn(username, password);
+        const result = await database.handleLogIn(username.toUpperCase(), password);
 
         // Check the user account level if there is one to be found:
         if (!result.error) {
@@ -101,15 +101,15 @@ const handler = () => {
             // assign the user the correct class depending on admin level.
 
             if (result.profile.admin) {
-                req.session.class = req.session.id = new Admin(username, password, result.profile.accountActive);
+                req.session.class = req.session.id = new Admin(username.toUpperCase(), password, result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
-                req.session.id = new Admin(username, password, result.profile.accountActive);
+                // req.session.id = new Admin(username, password, result.profile.accountActive);
             } else {
-                req.session.class = req.session.id = new User(username, password, result.profile.accountActive);
+                req.session.class = req.session.id = new User(username.toUpperCase(), password, result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
-                req.session.id = new User(username, password, result.profile.accountActive);
+                // req.session.id = new User(username, password, result.profile.accountActive);
             };
 
             user.setToken(result.token);
@@ -202,11 +202,11 @@ const handler = () => {
             try {
                 const result = await database.handleGetToken(user.token, user.username);
                 if (!result.error) {
-                    const response = await database.handleValidateNino(req.body.nino);
+                    const response = await database.handleValidateNino(req.body.nino.toUpperCase());
 
 
                     const page = {
-                        nino: req.body.nino,
+                        nino: req.body.nino.toUpperCase(),
                         route: req.params.route,
                         error: response.error,
                         username: user.username
@@ -217,7 +217,9 @@ const handler = () => {
                     if (customer.error) {
                         page.error = customer.error;
                         console.log('There was an error getting the customer information');
-                        console.log(customer.errorMessage);
+                        res.render('validate_nino', { page: page });
+                        return;
+                        // console.log(customer.errorMessage);
                     }
 
                     page.customerName = customer.name;
@@ -227,10 +229,10 @@ const handler = () => {
                     if (page.error) {
                         res.render('validate_nino', { page: page });
                     } else {
-                        const result = await database.handleGetSecurityQuestions(req.body.nino);
+                        const result = await database.handleGetSecurityQuestions(req.body.nino.toUpperCase());
                         // finally trust for the nino to be set in user class
 
-                        user.setCustomerNino(req.body.nino);
+                        user.setCustomerNino(req.body.nino.toUpperCase());
                         page.questions = result.questions;
                         res.render('security_questions', { page: page });
                     }
@@ -270,7 +272,7 @@ const handler = () => {
 
                 if (!token.error) {
 
-                    const result = await database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne, req.body.answerTwo, req.body.answerThree);
+                    const result = await database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne.toUpperCase(), req.body.answerTwo.toUpperCase(), req.body.answerThree.toUpperCase());
 
                     page.error = result.error;
 
@@ -279,7 +281,7 @@ const handler = () => {
                     if (customer.error) {
                         page.error = customer.error;
                         console.log('There was an error getting the customer information');
-                        console.log(customer.errorMessage);
+                        // console.log(customer.errorMessage);
                     }
 
                     page.customerName = customer.name;
@@ -356,7 +358,7 @@ const handler = () => {
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
                     page.error = customer.error;
-                    console.log(customer.errorMessage);
+                    // console.log(customer.errorMessage);
                 }
 
                 page.customerName = customer.name;
@@ -423,7 +425,7 @@ const handler = () => {
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
                     page.error = customer.error;
-                    console.log(customer.errorMessage);
+                    // console.log(customer.errorMessage);
                 };
 
                 page.customerName = customer.name;
@@ -502,7 +504,7 @@ const handler = () => {
 
                     const newClaim = {
                         nino: page.nino,
-                        awardRate: req.body.careLevelSubmit
+                        awardRate: req.body.careLevelSubmit.toUpperCase()
                     };
 
                     // Update cutomer table with claim details.
@@ -546,7 +548,7 @@ const handler = () => {
 
     const addCustomerSecurityForm = async (req, res) => {
 
-        const result = await database.handleValidateNino(req.body.nino);
+        const result = await database.handleValidateNino(req.body.nino.toUpperCase());
 
         // Check the date input format
 
@@ -572,11 +574,11 @@ const handler = () => {
         }
 
         const page = {
-            fName: req.body.fName,
-            mName: req.body.mName || null,
-            lName: req.body.lName,
+            fName: req.body.fName.toUpperCase(),
+            mName: req.body.mName.toUpperCase() || null,
+            lName: req.body.lName.toUpperCase(),
             dob: dob,
-            nino: req.body.nino
+            nino: req.body.nino.toUpperCase()
         };
 
         // Validate nino length
@@ -585,7 +587,7 @@ const handler = () => {
             result.message = 'Invalid nino length.';
         }
 
-        req.session.nino = req.body.nino;
+        req.session.nino = req.body.nino.toUpperCase();
         req.session.fName = page.fName;
         req.session.mName = page.mName
         req.session.lName = page.lName;
@@ -633,9 +635,9 @@ const handler = () => {
                 questionOne: req.body.questionOne,
                 questionTwo: req.body.questionTwo,
                 questionThree: req.body.questionThree,
-                answerOne: req.body.answerOne,
-                answerTwo: req.body.answerTwo,
-                answerThree: req.body.answerThree
+                answerOne: req.body.answerOne.toUpperCase(),
+                answerTwo: req.body.answerTwo.toUpperCase(),
+                answerThree: req.body.answerThree.toUpperCase()
             };
 
             const result = await database.handleAddNewCustomer(customer)
@@ -730,7 +732,15 @@ const handler = () => {
             addClassMethods(user);
         };
 
-        console.log('check user object \n\n', user);
+        // if (req.body.username.trim() == '') {
+        //     res.redirect('/manage-users');
+        //     return;
+        // }
+
+        if (req.body.id == 'EMPTY' || req.body.id.trim() == '' || req.body.username == 'EMPTY' || req.body.username.trim() == '') {
+            res.redirect('/manage-users');
+            return;
+        };
 
         if (!user.loggedIn || user.userLevel != 'admin') {
             // Stop the user pressing back on the browser to change a user without having the correct permissions.
@@ -738,7 +748,7 @@ const handler = () => {
             return;
         }
 
-        await database.handleToggleAccountActive(id, username);
+        await database.handleToggleAccountActive(id, username.toUpperCase());
 
         res.redirect('/manage-users');
     };
@@ -753,13 +763,16 @@ const handler = () => {
             addClassMethods(user);
         };
 
-        console.log('check user object \n\n', user);
+        if (req.body.id == 'EMPTY' || req.body.id.trim() == '') {
+            res.redirect('/manage-users');
+            return;
+        };
 
         if (!user.loggedIn || user.userLevel != 'admin') {
             // Stop the user pressing back on the browser to change a user without having the correct permissions.
             res.redirect('/');
             return;
-        }
+        };
 
         await database.handleToggleAdmin(req.body.id);
 

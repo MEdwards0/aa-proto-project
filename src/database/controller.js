@@ -51,6 +51,7 @@ const factory = ({
         try {
             await deleteExpiredTokens();
             const user = await getUser(username);
+
             const hash = user.password;
             const result = await checkPassword(password, hash);
 

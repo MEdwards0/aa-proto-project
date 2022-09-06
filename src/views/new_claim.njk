@@ -73,14 +73,17 @@
           Yes
         </label>
       </div>
-      <div id="other-benefit-error" class="govuk-error-message aa-claim" hidden>
-          <span>If the claimant is claiming another benefit, they will not be eligible for Attendance Allowance.</span>
-      </div>
       <div class="govuk-radios__item">
         <input class="govuk-radios__input" id="other-benefit-no" name="other-benefit" type="radio" value="No">
         <label class="govuk-label govuk-radios__label" for="other-benefit">
           No
         </label>
+      </div>
+
+      <div id="other-benefit-error" class="govuk-error-message aa-claim" hidden>
+        </br>
+          <span>If the claimant is claiming another benefit, they will not be eligible for Attendance Allowance.</span>
+          </br>
       </div>
     </div>
 
@@ -123,7 +126,9 @@
         </label>
       </div>
       <div id="pension-age-error" class="govuk-error-message aa-claim" hidden>
+        </br>
           <span>They must be at state pension age to be eligible for Attendance Allowance.</span>
+          </br>
       </div>
     </div>
 
@@ -209,7 +214,9 @@
         </label>
       </div>
       <div id="mental-disability-error" class="govuk-error-message aa-claim" hidden>
+        </br>
             <span>They must have either a physical or mental disability to be eligible for Attendance Allowance.</span>
+            </br>
         </div>
     </div>
 
@@ -249,7 +256,9 @@
         </label>
       </div>
       <div id="severe-disability-error" class="govuk-error-message aa-claim" hidden>
+        </br>
             <span>In order to be eligible for Attendance Allowance, their disability will require some sort of supervision.</span>
+            </br>
         </div>
     </div>
 
@@ -327,7 +336,9 @@
       </div>
       <div id="six-months-error" class="govuk-error-message aa-claim" hidden>
             {# This must check for a no condition on the last question to show up correctly #}
+            </br>
             <span>As the previous selection was no, the claimant can only qualify for Attendance allowance if they have 6 months or less to live.</span>
+            </br>
         </div>
     </div>
 
@@ -405,7 +416,9 @@
       </div>
       <div id="armed-forces-error" class="govuk-error-message aa-claim" hidden>
             {# This must check for a no condition on the last question to show up correctly #}
+            </br>
             <span>The claimant can only qualify for Attendance allowance if they have been in, or are related to someone who has been a member of the armed forces.</span>
+            </br>
         </div>
     </div>
 
@@ -483,7 +496,9 @@
     </div>
     <div id="refugee-error" class="govuk-error-message aa-claim" hidden>
             {# This must check for a no condition on the last question to show up correctly #}
+            </br>
             <span>As the claimant has not been in GB for the last 2 of 3 years, they will not qualify for Attendance Allowance.</span>
+            </br>
         </div>
   </fieldset>
 </div>
@@ -522,7 +537,9 @@
       </div>
     </div>
     <div id="habitual-resident-error" class="govuk-error-message aa-claim" hidden>
+      </br>
             <span>The claimant must be a habitual resident of the uk to be eligible for Attendance Allowance.</span>
+            </br>
         </div>
   </fieldset>
 </div>
@@ -600,7 +617,9 @@
     </div>
     <div id="sponsored-immigrant-error" class="govuk-error-message aa-claim" hidden>
             {# This must check for a yes condition on the last question to show up correctly #}
+            </br>
             <span>Due to being subject to immigration control, without sponsorship the claimant will not be eligible for Attendance Allowance.</span>
+            </br>
         </div>
   </fieldset>
 </div>
@@ -673,16 +692,18 @@
           No
         </label>
       </div>
-      <div id="care-home-costs-error" class="govuk-error-message aa-claim" hidden>
-            {# This must check for a yes condition on the last question to show up correctly #}
-            <span>As the claimant is in a care home and the costs are covered, they will not be eligible for Attendance Allowance.</span>
-        </div>
       <div class="govuk-radios__item">
         <input class="govuk-radios__input" id="care-home-costs-na" name="care-home-costs" type="radio" value="NA">
         <label class="govuk-label govuk-radios__label" for="care-home-costs">
           Not Applicable
         </label>
       </div>
+      <div id="care-home-costs-error" class="govuk-error-message aa-claim" hidden>
+            {# This must check for a yes condition on the last question to show up correctly #}
+            </br>
+            <span>As the claimant is in a care home and the costs are covered, they will not be eligible for Attendance Allowance.</span>
+            </br>
+        </div>
     </div>
   </fieldset>
 </div>
@@ -1024,7 +1045,7 @@
     }
 
     .button-div {
-      margin-top: 20px;
+      margin-top: 60px;
     }
 
     .govuk-radios__item {
@@ -1054,6 +1075,13 @@
 
     .signout a:hover {
       text-decoration: underline;
+    }
+
+    input {
+      border-style: none;
+      font-weight: bold;
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      font-size: 20px;
     }
     
   </style>

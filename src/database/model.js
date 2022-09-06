@@ -14,13 +14,11 @@ const addUser = async (username, password) => {
     try {
         const hash = await encryptInput(password);
         await client.query(`INSERT INTO "user" (username, password) VALUES ('${username}', '${hash}')`);
-        // const result = await client.query(`SELECT * FROM "user" WHERE username = '${username}'`);
         const result = await client.query(`SELECT id FROM "user" WHERE username = '${username}'`);
 
         return {
             status: true,
             error: false,
-            // username: result.rows[0].username,
             id: result.rows[0].id,
         }
     } catch (error) {
@@ -32,11 +30,6 @@ const addUser = async (username, password) => {
 };
 
 const addAdmin = async (id) => {
-
-    // if (!admin) {
-    //     await client.query(`INSERT INTO "admin" (user_id) VALUES (${id})`);
-    //     return true;
-    // }
 
     try {
         await client.query(`INSERT INTO "admin" ("user_id", "isAdmin") VALUES (${id}, 'false')`);

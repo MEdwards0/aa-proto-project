@@ -689,12 +689,13 @@ document.querySelectorAll('input[name="sponsored-immigrant"]').forEach(element =
 document.querySelectorAll('input[name="care-home-costs"]').forEach(element => {
     const radioYes = document.getElementById('care-home-costs-yes');
     const radioNo = document.getElementById('care-home-costs-no');
+    const radioNa = document.getElementById('care-home-costs-na');
 
     element.addEventListener('click', () => {
         const inCareHome = document.getElementById('in-care-home-submit').value;
 
 
-        if (document.activeElement === radioYes) {
+        if (document.activeElement === radioYes || document.activeElement == radioNa) {
             hideElement(document.getElementById('care-home-costs-error'));
         };
 
@@ -705,6 +706,7 @@ document.querySelectorAll('input[name="care-home-costs"]').forEach(element => {
 });
 
 document.querySelectorAll('a[class="govuk-link aa-claim"]').forEach(element => {
+    element.style.cursor = 'pointer';
     element.addEventListener('click', () => {
 
         switch (element.id) {
