@@ -1,3 +1,6 @@
+// This file controls the new claim page. It is mostly designed to hide and show certain elements when buttons are clicked and certain
+// radio values are selected to show error. A lot of this code is rinse and repeat with few changes and in many places there are whole sections
+// just for getting the selector values to work further with such as the BUTTONS section.
 
 // BUTTONS
 const startClaimButton = document.getElementById('start-claim');
@@ -60,7 +63,10 @@ const careHomeCostsRadioDiv = document.getElementById('care-home-costs-radio-div
 const careLevelRadioDiv = document.getElementById('care-level-radio-div');
 const inputForm = document.getElementById('input-form');
 
-// helper functions
+// HELPER FUNCTIONS
+
+// showElement shows an inputted element, unless that element has a tag name of a button, then it will unhide the parent instead. This is due to
+// buttons being wrapped in a div.
 
 function showElement(element) {
 
@@ -73,10 +79,12 @@ function showElement(element) {
     element.style.display = 'block';
 }
 
+// Hide the element specified. Sets the style propery to 'none'.
 function hideElement(element) {
     element.style.display = 'none';
 }
 
+// Hide all elements on the page where it contains a class of 'aa-claim'. Uses the hideElement implementation.
 function hideAllElements() {
 
     const elements = document.getElementsByClassName('aa-claim');
@@ -86,8 +94,13 @@ function hideAllElements() {
     };
 }
 
-// main functions
+// MAIN FUNCTIONS.
 
+// all these functions are rinse and repeat, designed to hide all the elements on the page, then only show the ones we need.
+// The buttons left showing are designed to hide all elements again and then show the next set of buttons and radios.
+
+// many functions have a flag parameter that is defaulted to false. If it is true, then it will show the 'last' button which takes the
+// user to the summary screen. It also shows the relevant radio div section. This flag is intended to allow the summary screen to have 'change' options.
 
 function newClaim() {
     hideAllElements();
@@ -334,12 +347,6 @@ function careLevel(flag = false) {
         showElement(backCareHomeCostsButton);
         showElement(nextCareLevelButton);
     };
-
-
-    // show parent elements
-
-    // showElement(backCareHomeCostsButton.parentNode);
-    // showElement(nextCareLevelButton.parentNode);
 };
 
 function summary() {
@@ -351,29 +358,23 @@ function summary() {
         element.style.display = 'inline';
     });
 
-    // show parent elements
-
-    // showElement(backCareLevelButton.parentNode);
-
 };
 
-// Forward button functionality
+// FORWARD BUTTON FUNCTIONS
 
+// This first event listener is slightly different, where it takes the user back to the view-customer-screen if the radioOption.value == 'No'.
 startClaimButton.addEventListener('click', () => {
     const radioOption = document.querySelector('input[name="new-claim"]:checked');
     if (radioOption.value == 'No') {
         const nino = document.getElementById('nino').textContent;
         window.location.href = `/view-customer-data/${nino}`;
-        // hideAllElements();
     } else {
         otherBenefit();
-    }
-
-    // if (radioOption.value == 'Yes') {
-        
-    // }
-    
+    };
 });
+
+// All these next buttons sets the values of the inputs in the summary form on the last page. It then calls the functions to hide all elements and
+// show the next section.
 
 
 nextOtherBenefitButton.addEventListener('click', () => {
@@ -516,6 +517,19 @@ backSixMonthsButton.addEventListener('click', sixMonths);
 backOtherBenefitButton.addEventListener('click', otherBenefit);
 
 backClaimButton.addEventListener('click', newClaim);
+
+// Change the first button value to 'Exit' if no is selected.
+
+document.querySelectorAll('input[name="new-claim"]').forEach(element => {
+    element.addEventListener('click', () => {
+
+        const radioNo = document.getElementById('new-claim-2');
+
+        if (document.activeElement === radioNo) {
+            startClaimButton.innerHTML = 'Exit';
+        };
+    });
+});
 
 // Other benefit radio error message
 
@@ -705,6 +719,8 @@ document.querySelectorAll('input[name="care-home-costs"]').forEach(element => {
     });
 });
 
+// Summary 'Change' link button functionality. When a change is selected, get the element id and show the correct section, setting the flag to true.
+
 document.querySelectorAll('a[class="govuk-link aa-claim"]').forEach(element => {
     element.style.cursor = 'pointer';
     element.addEventListener('click', () => {
@@ -763,6 +779,8 @@ document.querySelectorAll('a[class="govuk-link aa-claim"]').forEach(element => {
         };
     });
 });
+
+// When the summary button is pressed, update the values of the submits for final submission. This is to allow the summary button and change links to have an effect on the form.
 
 function updateValues() {
     document.getElementById('other-benefit-submit').value = document.querySelector('input[name="other-benefit"]:checked').value;

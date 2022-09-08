@@ -1,5 +1,10 @@
+// This file depends on a database client implementation in order to make the subesequent calls we need.
+// This file also depends on encryption methods from another file.
+
 const { client } = require('./connection');
 const { encryptInput, checkEncryption } = require('../hash/encryptionModel');
+
+// Defined a helper function here to assist with bringing back date data in a useful format.
 
 const convertTimeDDMMYYYY = (date) => {
     const convertDate = new Date(date);
@@ -7,8 +12,12 @@ const convertTimeDDMMYYYY = (date) => {
     const month = convertDate.getMonth() + 1;
     const year = convertDate.getFullYear();
 
+    // Return a plain string version of our date.
     return `${day}/${month}/${year}`;
 }
+
+// Function to add users to our database. Takes a username and a password. The username is encrypted.
+// Returns the user id for use after adding to the database.
 
 const addUser = async (username, password) => {
     try {
@@ -29,6 +38,8 @@ const addUser = async (username, password) => {
     }
 };
 
+// Function to add admins to the database that takes an id as an argument. This implementation sets the value to false.
+
 const addAdmin = async (id) => {
 
     try {
@@ -40,6 +51,8 @@ const addAdmin = async (id) => {
     }
     
 };
+
+// Get user data from the database where we can find the username. If not, return an error and a message, otherwise, the user data.
 
 const getUser = async (username) => {
     const query = `SELECT * FROM "user" WHERE username = '${username}'`;
@@ -64,6 +77,8 @@ const getUser = async (username) => {
     }
 }
 
+// Function to take an input and check its hash value. Returns an error true or false depending on response.
+
 const checkPassword = async (input, hash) => {
     const result = await checkEncryption(input, hash);
     if (result) {
@@ -79,12 +94,16 @@ const checkPassword = async (input, hash) => {
     };
 }
 
-const addToken = async (userId, userName) => {
+// Add a token using a userId and a username. Creates a random token each time then adds it to the database. Returns the same token at the end.
+
+const addToken = async (userId, username) => {
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const query = `INSERT INTO "token" (token, user_id, user_name) VALUES ('${token}', ${userId}, '${userName}')`;
+    const query = `INSERT INTO "token" (token, user_id, user_name) VALUES ('${token}', ${userId}, '${username}')`;
     await client.query(query);
     return token;
 };
+
+// Queries the database for a token and a name inputted here. Returns username, id and token data if a match is found.
 
 const getToken = async (token, name) => {
     const query = `SELECT * FROM "token" WHERE token = '${token}' AND user_name = '${name}'`;
@@ -102,20 +121,28 @@ const getToken = async (token, name) => {
     }
 };
 
+// Deletes all expired tokens from the database.
+
 const deleteExpiredTokens = async () => {
     const query = `DELETE FROM "token" WHERE expires_at < NOW()`;
     await client.query(query);
 };
+
+// Deletes any duplicate tokens for the user active user.
 
 const deleteUnusedTokens = async (token, name) => {
     const query = `DELETE FROM "token" WHERE "user_name" = '${name}' AND "token" != '${token}'`;
     await client.query(query);
 };
 
+// Deletes any requested tokens from the database.
+
 const deleteToken = async (token) => {
     const query = `DELETE FROM "token" WHERE "token" = '${token}'`;
     await client.query(query);
 };
+
+// Query to find an nino in the database. Returns with an object with a status property of true or false.
 
 const findNino = async (nino) => {
     const query = `SELECT "NINO" FROM "customer" WHERE "NINO" = '${nino}'`
@@ -134,6 +161,8 @@ const findNino = async (nino) => {
     };
 };
 
+// Return security questions for the requested nino.
+
 const getSecurityQuestions = async (nino) => {
     try {
         const query = `SELECT "NINO", "questionOne", "answerOne", "questionTwo", "answerTwo", "questionThree", "answerThree"
@@ -146,11 +175,15 @@ const getSecurityQuestions = async (nino) => {
     }
 };
 
+// Check security answers inputted for what we have in the database related to the inputted nino. Return true or false if they match.
+
 const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
     try {
 
         const query = `SELECT "answerOne", "answerTwo", "answerThree" FROM "customerSecurity" WHERE "NINO" = '${nino}'`;
         const result = await client.query(query);
+
+        // Values are hashed in the db, so answers require converting. checkEncryption function returns true or false.
 
         const answerCheckOne = await checkEncryption(answerOne, result.rows[0].answerOne);
         const answerCheckTwo = await checkEncryption(answerTwo, result.rows[0].answerTwo);
@@ -166,6 +199,8 @@ const checkSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => 
         console.log(error);
     }
 };
+
+// Function to return all customer data for the inputted nino.
 
 const getCustomer = async (nino) => {
     try {
@@ -194,6 +229,8 @@ const getCustomer = async (nino) => {
     }
 };
 
+// Function to get the award rate of the customer dependant on the nino.
+
 const getAward = async (nino) => {
     try {
         let query = `SELECT "rateCode" FROM "customer" WHERE "NINO" = '${nino}'`;
@@ -216,6 +253,8 @@ const getAward = async (nino) => {
     };
 };
 
+// Update claim information for the customer in the databse. Takes an object as an argument. Returns an error of true or false.
+
 const addClaim = async (object) => {
     try {
         const query = `UPDATE "customer" SET "claimDateStart"=NOW(), "rateCode"='${object.awardRate}', "claimedAA"='true' WHERE "NINO"='${object.nino}'`;
@@ -232,6 +271,8 @@ const addClaim = async (object) => {
     };
 };
 
+// Add a new customer to the database. This function takes a customer object with several properties passed in to be used. If there is an error,
+// return an error of true and an error message. If there is no error, return the added customer.
 
 const addCustomer = async (customer) => {
 
@@ -255,23 +296,30 @@ const addCustomer = async (customer) => {
     };
 };
 
+// Add a customer access token for a user using a nino. This is needed to allow the user to be able to access customer data. Only one token for the user or the nino can be used at any one time.
+// Returns the issued token at the end.
+
 const addCustomerAccessToken = async (user, nino) => {
-    // Delete any entries where the user already has a token
+    // Delete any entries where the user already has a token issued.
     try {
         const query = `DELETE FROM "customerAccessToken" WHERE "user" = '${user}'`;
         await client.query(query);
     } catch (error) {
         console.log(error);
+        return false; // Quit the function here.
     };
 
-    // Delete any existing token for the customer 
+    // Delete any existing token for the customer where a token is issued.
 
     try {
         const query = `DELETE FROM "customerAccessToken" WHERE "NINO" = '${nino}'`;
         await client.query(query);
     } catch (error) {
         console.log(error);
+        return false; // Quit the function here.
     };
+
+    // Create a new random token.
 
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const query = `INSERT INTO "customerAccessToken" ("token", "user", "NINO") VALUES ('${token}', '${user}', '${nino}')`;
@@ -279,10 +327,10 @@ const addCustomerAccessToken = async (user, nino) => {
     return token;
 };
 
-const checkCustomerAccessToken = async (token, user, nino) => {
-    // If there is an error, set error to true and return a message. Else, return access token.
+// Checks the database for a customer access token, taking a toke, user and nino to check against. If there is an error, set error to true and return a message. 
+// Else, return access token in an object.
 
-    // Return the token for the user and the customer.
+const checkCustomerAccessToken = async (token, user, nino) => {
 
     try {
         const query = `SELECT * FROM "customerAccessToken" WHERE "token" = '${token}' AND "user" = '${user}' AND "NINO" = '${nino}'`;
@@ -312,6 +360,8 @@ const checkCustomerAccessToken = async (token, user, nino) => {
 
 };
 
+// Remove customer access token from the database wherever a match is found.
+
 const deleteCustomerAccessToken = async (token) => {
 
     try {
@@ -321,6 +371,8 @@ const deleteCustomerAccessToken = async (token) => {
         console.log(error);
     }
 }
+
+// Check a customer access token, returning true or false as an error object.
 
 const verifyCustomerAccessToken = async (token) => {
     try {
@@ -343,6 +395,9 @@ const verifyCustomerAccessToken = async (token) => {
         }
     }
 };
+
+// Add customer security answers when a new customer adds their information. Answers are encrypted at this stage. This function takes an object and needs required parameters for use.
+// Returns an object with an error of true or false and an error message where necessary.
 
 const addCustomerSecurity = async (customer) => {
     try {
@@ -368,8 +423,9 @@ const addCustomerSecurity = async (customer) => {
     };
 };
 
+// Return all users as an array of key value pairs, excluding the username specified.
+
 const getAllUsers = async (username) => {
-    // return all users as an array of key value pairs, excluding the username specified.
     try {
         const query = `SELECT * FROM "user" WHERE "username" != '${username}';`;
         const result = await client.query(query);
@@ -398,6 +454,8 @@ const getAllUsers = async (username) => {
     }
 };
 
+// Toggle the admin status of a user, using their id which is found in the admin table. 
+
 const toggleAdmin = async (id) => {
     try {
         const query = `SELECT * FROM "admin" WHERE "user_id" = ${id};`;
@@ -415,17 +473,17 @@ const toggleAdmin = async (id) => {
     }
 };
 
+// Toggle account activation status using both an id and username as parameters. 
+
 const toggleAccountActive = async (id, username) => {
     try {
         const query = `SELECT * FROM "user" WHERE "username" = '${username}' AND "id" = ${id};`;
         const response = await client.query(query);
 
         if (response.rows[0].accountActive) {
-            console.log('Setting accountActive to false \n');
             const request = `UPDATE "user" SET "accountActive" = 'false' WHERE "id" = ${id} AND "username" = '${username}';`;
             await client.query(request);
         } else {
-            console.log('Setting accountActive to true \n');
             const request = `UPDATE "user" SET "accountActive" = 'true' WHERE "id" = ${id} AND "username" = '${username}';`;
             await client.query(request);
         }
@@ -433,6 +491,8 @@ const toggleAccountActive = async (id, username) => {
         console.log('model.js toggleAccountActive \n\n', error);
     }
 };
+
+// Export all functions here for use later.
 
 
 module.exports = {

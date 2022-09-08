@@ -5,6 +5,10 @@
 {% endblock %}
 {% block content %}
   <h1 class="govuk-heading-xl">Create Account</h1>
+
+  {%if error%}
+  <p id="page-error">There was an error creating a new user.</p>
+  {%endif%}
 <form id='loginForm' class="govuk-label--l" action='create-user' method="POST">
 <h1 class="govuk-heading-l">Staff Username</h1>
   <input class="govuk-input govuk-input--width-20" id='username'type="text" name="username" placeholder="" required="required">
@@ -16,6 +20,15 @@
 </br>
 <button class="govuk-button" data-module="govuk-button" id="login" type="submit">Create Account</button>
 </form>
+
+<style>
+  #page-error {
+    color: red;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+</style>
 
 {% endblock %}
 {% block bodyEnd %}

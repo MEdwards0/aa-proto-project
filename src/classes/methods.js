@@ -1,3 +1,6 @@
+// Server side session storage cannot contain methods due to being serialized as json.
+// A work around for this is to define functions here and add them to the classes when needed.
+
 function getUser() { return this.user; };
 
 function getUserLevel() { return this.userLevel };
@@ -58,6 +61,8 @@ function sayHello() {
     console.log('Hello', this.username)
 }
 
+// Main function that takes a class and imprints these methods to them.
+
 function addClassMethods(object) {
     object.getUser = getUser;
     object.getUserLevel = getUserLevel;
@@ -81,5 +86,3 @@ function addClassMethods(object) {
 module.exports = {
     addClassMethods
 }
-
-// Due to express sessions serializing as JSON, these cannot be stored there and need to be readded to the object each time.

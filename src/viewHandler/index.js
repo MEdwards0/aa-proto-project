@@ -1,9 +1,14 @@
+// This file handles the views for the application. it depends on database calls, claim functionality, and Claim functionality
 const database = require('../database');
 const claim = require('../claim');
 const { User, Admin } = require("../classes");
 const { addClassMethods } = require('../classes/methods');
 
+// Wrap the whole file in a function to return functions defined within at the end.
+
 const handler = () => {
+
+    // Display user home, checking for correct credentials
 
     const displayUserHome = async (req, res) => {
 
@@ -76,7 +81,7 @@ const handler = () => {
     };
 
     const createUserForm = (req, res) => {
-        res.render('create_user');
+        res.render('create_user', {error: false});
     };
 
     const createUser = async (req, res) => {
@@ -86,7 +91,7 @@ const handler = () => {
         if (result.status) {
             res.render('confirm_user_created');
         } else {
-            res.send('Error creating user');
+            res.render('create_user', { error: true });
         }
     };
 
@@ -104,12 +109,10 @@ const handler = () => {
                 req.session.class = req.session.id = new Admin(username.toUpperCase(), password, result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
-                // req.session.id = new Admin(username, password, result.profile.accountActive);
             } else {
                 req.session.class = req.session.id = new User(username.toUpperCase(), password, result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
-                // req.session.id = new User(username, password, result.profile.accountActive);
             };
 
             user.setToken(result.token);
@@ -219,7 +222,6 @@ const handler = () => {
                         console.log('There was an error getting the customer information');
                         res.render('validate_nino', { page: page });
                         return;
-                        // console.log(customer.errorMessage);
                     }
 
                     page.customerName = customer.name;
@@ -244,7 +246,6 @@ const handler = () => {
                 res.redirect('/');
             };
         } else {
-            // req.session.destroy(); // destroy the current session.
             res.redirect('/');
         }
     };
@@ -281,7 +282,6 @@ const handler = () => {
                     if (customer.error) {
                         page.error = customer.error;
                         console.log('There was an error getting the customer information');
-                        // console.log(customer.errorMessage);
                     }
 
                     page.customerName = customer.name;
@@ -326,29 +326,26 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
+
                 const page = {
                     nino: user.customerNino,
                     username: user.username,
                     error: false
-                }
+                };
 
                 // check token validity
                 const result = await database.handleGetToken(user.token, user.username);
-                // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
                 const nino = await database.handleValidateNino(user.customerNino);
-                // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
-                // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check security questions
                 const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
-                // console.log(`GATE: checkSecurityAnswers. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
                 // get customer information for the page rendering here:
@@ -358,8 +355,7 @@ const handler = () => {
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
                     page.error = customer.error;
-                    // console.log(customer.errorMessage);
-                }
+                };
 
                 page.customerName = customer.name;
                 page.customerSurname = customer.surname;
@@ -369,8 +365,8 @@ const handler = () => {
                     res.redirect('/');
                 } else {
                     res.render('new_claim', { page: page });
-                    // res.send('success: render process_customer page');
                 };
+
             } catch (error) {
                 console.log(error);
                 req.session.destroy(); // destroy the current session.
@@ -402,21 +398,17 @@ const handler = () => {
 
                 // check token validity
                 const result = await database.handleGetToken(user.token, user.username);
-                // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
                 const nino = await database.handleValidateNino(user.customerNino);
-                // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
-                // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // check customer access token
                 const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
-                // console.log(`GATE: checkCustomerAccessToken. Result is: ${security.error}. Should be false.`);
                 security.error ? page.error = true : page.error = page.error;
 
                 const customer = await database.handleGetCustomer(page.nino);
@@ -425,7 +417,6 @@ const handler = () => {
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
                     page.error = customer.error;
-                    // console.log(customer.errorMessage);
                 };
 
                 page.customerName = customer.name;
@@ -475,17 +466,14 @@ const handler = () => {
 
                 // check token validity
                 const result = await database.handleGetToken(user.token, user.username);
-                // console.log(`GATE: getToken. Result is: ${result.error}. Should be false.`);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
                 const nino = await database.handleValidateNino(user.customerNino);
-                // console.log(`GATE: validateNino. Result is: ${nino.error}. Should be false.`);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
-                // console.log(`GATE: check cookies nino against url nino. Result is: ${req.cookies.nino == req.params.nino}. Should be true.`);
 
                 // claim process logic here, returns an object with an error and a claim message, if application.error is true, there was an error.
                 const application = claim.processClaim(req);
@@ -559,9 +547,7 @@ const handler = () => {
         req.body.dobDay.length != 2 ? result.message = 'Day format incorrect.' : result.message = result.message;
 
         
-
         // Set the input date to the correct format.
-
         // Dates between client and server can vary. This implementation seems to work correctly now.
 
         const dob = new Date(Date.parse(`${req.body.dobYear}-${req.body.dobMonth}-${req.body.dobDay}`));
@@ -588,6 +574,8 @@ const handler = () => {
             result.message = 'Invalid nino length.';
         }
 
+        // Set session data here so it allows us to go back to this screen with the inputted data when an error occurs.
+
         req.session.nino = req.body.nino.toUpperCase();
         req.session.fName = page.fName;
         req.session.mName = page.mName
@@ -596,7 +584,7 @@ const handler = () => {
         req.session.dobMonth = req.body.dobMonth;
         req.session.dobDay = req.body.dobDay;
 
-        // We want result.error to be true, so we know that there is not a nino in the db and a message so it wasnt because of another error.
+        // We want result.error to be true, so we know that there is not a nino in the db and no message so it wasnt because of another error.
         if (result.error && result.message == 'undefined') {
     
             req.session.dob = page.dob;
@@ -604,6 +592,8 @@ const handler = () => {
             res.render('new_customer_security', { page: page });
 
         } else {
+
+            // If there is no session data, set it all to blank.
 
             const page = {
                 error: true,
@@ -733,11 +723,6 @@ const handler = () => {
             addClassMethods(user);
         };
 
-        // if (req.body.username.trim() == '') {
-        //     res.redirect('/manage-users');
-        //     return;
-        // }
-
         if (req.body.id == 'EMPTY' || req.body.id.trim() == '' || req.body.username == 'EMPTY' || req.body.username.trim() == '') {
             res.redirect('/manage-users');
             return;
@@ -780,6 +765,8 @@ const handler = () => {
         res.redirect('/manage-users');
     };
 
+    // Return all of the defined functions here.
+
     return {
         logInPage,
         resetPasswordForm,
@@ -805,6 +792,8 @@ const handler = () => {
     };
 };
 
+// Export the return result of calling the handler function.
+
 module.exports = handler();
 
-// TODO: Bundle view logic into separate file that takes in req and res parameters accordingly to neaten up this file.
+

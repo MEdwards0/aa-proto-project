@@ -15,14 +15,9 @@
 </br>
 </br>
 <button class="govuk-button" data-module="govuk-button" id="login" type="login">Login</button>
-{# <button class="govuk-button" data-module="govuk-button" id="forgot" type="forgot">Forgot Password</button> #}
 <a href='forgot-password'><button class="govuk-button" data-module="govuk-button" id="forgot" type="button" formnovalidate>Forgot Password</button>
 </a>
 </form>
-</br>
-<a href='create-user'>Temporary - Create a new account</a>
-</br>
-<a href='/add-customer'>Temporary - Create a new customer</a>
 
 
 {% if page.error %}
@@ -37,35 +32,41 @@
     #error, .error {
     color: red;
     font-size: 1.2em;
-    font-family: "Trebuchet MS", Helvetica, sans-serif,
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     text-decoration: underline;
     }
-
-    {# .error {
-    color: red;
-    font-size: 1.2em;
-    } #}
 
     #error-i-2, #username, #h1-username, #h1-password {
       border-color: red;
       color: red;
-      font-family: "Trebuchet MS", Helvetica, sans-serif
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
     }
 
   </style>
 {%endif%}
 
-
 {% endblock %}
+
+{% block footer %}
+  {{ govukFooter({
+    meta: {
+      items: [
+        {
+          href: "/create-user",
+          text: "Make new User account"
+        },
+        {
+          href: "/add-customer",
+          text: "Add a customer"
+        }
+      ]
+    }
+  }) }}
+{% endblock %}
+
 {% block bodyEnd %}
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
   <script src="styles/all.js"></script>
   <script>window.GOVUKFrontend.initAll()</script>
-  {# <script>
-        document.getElementById('login').addEventListener('click', function(){
-            const user = document.getElementById('username');
-            document.getElementById('loginForm').action = 'login/' + user.value;
-        });
-  </script> #}
 {% endblock %}

@@ -1,3 +1,5 @@
+// This factory takes functions in as arguments and returns other functions that depend on them which are more usable to the application.
+
 const factory = ({ 
     addUser, 
     getUser, 
@@ -23,6 +25,9 @@ const factory = ({
     toggleAccountActive
 }) => {
 
+    // Add a user to the database. Returns an error if there is a name taken. Also adds a record to the admin table
+    // defaulted to false.
+
     const handleAddUser = async (username, password) => {
         const result = await addUser(username, password);
 
@@ -47,13 +52,20 @@ const factory = ({
         }
     };
 
+    // Log in function to allow users into the app by username and password.
+
     const handleLogIn = async (username, password) => {
         try {
+            // Clear the expired access tokens in the database to ensure only valid tokens remaimn.
             await deleteExpiredTokens();
+
+            //  Get the user information and check that the passwords match.
             const user = await getUser(username);
 
             const hash = user.password;
             const result = await checkPassword(password, hash);
+
+            // If status is okay, then add a new token to the database and return useable information.
 
             if (result.status) {
 
@@ -70,11 +82,13 @@ const factory = ({
                     }
                 }
             }
+
+            // If the function manages to get here, no valid information was found. return here with an error.
             return {
                 status: result.status,
                 error: true,
             }
-
+            // Any catch errors, return with an error.
         } catch (error) {
             return {
                 status: false,
@@ -83,13 +97,20 @@ const factory = ({
         }
     };
 
+    // Get a token from the database.
+
     const handleGetToken = async (token, name) => {
+        // Firstly get rid of any expired tokens so subsequent queries have up to date data.
         await deleteExpiredTokens();
+
+        // Call the getToken function using a token and a name. Returns a true or false status.
         const result = await getToken(token, name);
 
         if (result.status) {
-            await deleteUnusedTokens(token, name); // Remove all previous tokens for the user except the one we just got.
+            // Remove all previous tokens for the user except the one we just got.
+            await deleteUnusedTokens(token, name); 
 
+            // return data for further use.
             return {
                 status: result.status,
                 error: false,
@@ -99,8 +120,8 @@ const factory = ({
                     id: result.id
                 }
             };
-            
         } else {
+            // return an error
             return {
                 status: false,
                 error: true
@@ -108,10 +129,12 @@ const factory = ({
         };
     };
 
+    // delete the inputted token from the database.
     const handleRemoveToken = async (token) => {
         await deleteToken(token);
     };
 
+    // Validate the inputted nino against the database. Return with an error true or false.
     const handleValidateNino = async (nino) => {
         const result =  await findNino(nino);
 
@@ -125,7 +148,9 @@ const factory = ({
         };
     };
 
+    // Get the security questions from the database that is related to the nino inputted. Returns the questions.
     const handleGetSecurityQuestions = async (nino) => {
+        // first check for a valid nino.
         const response = await findNino(nino);
 
         if (response.status) {
@@ -144,6 +169,7 @@ const factory = ({
         return {error: true};
     };
 
+    // Checks the answers inputted against what we have in the db. Returns an error status.
     const handleCheckSecurityAnswers = async (nino, answerOne, answerTwo, answerThree) => {
         const result = await checkSecurityAnswers(nino, answerOne, answerTwo, answerThree);
 
@@ -158,6 +184,7 @@ const factory = ({
         };
     };
 
+    // Take a nino and return all customer data.
     const handleGetCustomer = async (nino) => {
         const customer = await getCustomer(nino);
         const rate = await getAward(nino);
@@ -177,12 +204,15 @@ const factory = ({
 
         return customer;
     };
-
+    
+    // Update claim that takes in an object.
     const handleUpdateClaim = async (object) => {
         const result = await addClaim(object);
 
         return result;
     };
+
+    // Check customer access token in the database with what is inputted here. Returns an error response.
 
     const handleCheckCustomerAccessToken = async (token, user, nino) => {
 
@@ -204,10 +234,14 @@ const factory = ({
 
     };
 
+    // Add a new customer access token with a user and a nino. Returns the issued token.
+
     const handleAddNewCustomerAccessToken = async (user, nino) => {
         const token = await addCustomerAccessToken(user, nino);
         return token;
     };
+
+    // Add a new customer to the database. Customer is an object.
 
     const handleAddNewCustomer = async (customer) => {
         let errorMessage;
@@ -238,6 +272,8 @@ const factory = ({
         
     };
 
+    // Query the database and get all users, excluding the username which it was called with.
+
     const handleGetAllUsers = async (username) => {
         try {
             const users = await getAllUsers(username);
@@ -253,13 +289,19 @@ const factory = ({
         }
     };
 
+    // Toggle admin status in the database using a user's id.
+
     const handleToggleAdmin = async (id) => {
         await toggleAdmin(id);
     }
 
+    // Toggle a users account between active or inactive taking in a user id and a username.
+
     const handleToggleAccountActive = async (id, username) => {
         await toggleAccountActive(id, username);
     };
+
+    // return the functions when the factory function is invoked. 
 
     return {
         handleAddUser,
@@ -279,5 +321,7 @@ const factory = ({
         handleToggleAccountActive
     }
 };
+
+// export the function to be used elsewhere.
 
 module.exports = factory;

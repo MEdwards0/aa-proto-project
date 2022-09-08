@@ -1,10 +1,13 @@
+// This file controles functionality of the admin control page. All logic related to buttons and other events are handled here.
+
 //  SUBMIT BUTTONS
 
 const activateAccountButton = document.getElementById('activate-account-button');
 const makeAdminButton = document.getElementById('make-admin-button');
 
-// Button submit logic
+// BUTTON SUBMIT LOGIC
 
+// When a submit button is pressed, change the values of the inputs to what is held in certain variables.
 activateAccountButton.addEventListener('click', () => {
     document.getElementById('verify-id').value = inputId.innerHTML;
     document.getElementById('verify-username').value = inputUsername.innerHTML;
@@ -15,7 +18,7 @@ makeAdminButton.addEventListener('click', () => {
     document.getElementById('admin-username').value = inputUsername.innerHTML;
 });
 
-// input values
+// INPUT VALUES
 
 const inputId = document.getElementById('input-id');
 const inputUsername = document.getElementById('input-username');
@@ -25,12 +28,14 @@ const inputUsername = document.getElementById('input-username');
 
 let tableRows = document.getElementsByClassName('user-rows');
 
+// Helper function to reset visual colour of the table
 function resetTableColour() {
     for (let i = 0; i < tableRows.length; i++) {
         tableRows[i].style.background = 'white';
     };
 };
 
+// Add an event listener to every row of the user table.
 
 for (let i = 0; i < tableRows.length; i++) {
     tableRows[i].addEventListener('click', () => {
@@ -60,7 +65,7 @@ for (let i = 0; i < tableRows.length; i++) {
             makeAdminButton.innerHTML = 'Promote Admin';
         };
 
-        // hide buttons, if fields are empty.
+        // hide buttons, if fields are 'EMPTY'.
 
         if (tableRows[i].childNodes[5].innerHTML == 'EMPTY') {
             activateAccountButton.style.display = 'none';

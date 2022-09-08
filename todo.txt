@@ -1,13 +1,10 @@
- - add breadcrumbs to new claim screen.
-
  - tidy up files
-    - remove commented out code
-    - remove useless comments
+    - remove commented out code <--
+    - remove useless comments <--
 
- - add meaningful comments
+ - add meaningful comments <--
 
- - clean up UI in places
-    - home screen create user and create customer to be made buttons or links in the footer, or hidden entirely.
+ - write tests for the code
 
 
 Optional:

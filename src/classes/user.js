@@ -1,3 +1,5 @@
+// Create a user class here for those using the application.
+
 class User {
     constructor(username, password, activeAccount = false) {
         this.username = username;
@@ -72,5 +74,7 @@ class User {
         console.log('Hello', this.username)
     }
 };
+
+// Export the User class for other files to use.
 
 module.exports = { User };

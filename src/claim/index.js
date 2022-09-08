@@ -13,10 +13,6 @@ const customInputValidation = (variable, ...inputs) => {
             return false;
         };
 
-        // if (variable != 'Yes' || variable != 'No') {
-        //     return true;
-        // };
-
         if (variable == element) {
             result = true;
         };
@@ -29,13 +25,16 @@ const processClaim = req => {
 
     let error;
 
-    // convert all values to an array and then check if they are valid.
+    // Check each body input value to ensure they all conform with the standard.
+    // ensure they all come back true
 
     Object.values(req.body).forEach(element => {
-
-        // ensure they all come back true
+        
+        // customInputValidation checks the first argument against the rest. The function takes any number of args.
         error = customInputValidation(element, 'Yes', 'No', 'L', 'H', 'N') ? false : true;
     });
+
+    // if customInputValidation returns a false at any point, then error is set to true and causes a return statement with a message.
 
     if (error) {
         return {
@@ -44,8 +43,9 @@ const processClaim = req => {
         };
     };
 
-    // If the input names change in the html file, then this whole function will need to be re-written. This will accrue technical debt.
+    // Note: If the input names change in the html file, then this whole function will need to be re-written. This will accrue technical debt.
 
+    // Get all variables from the body object.
     const {
         otherBenefitSubmit,
         pensionAgeSubmit,
@@ -65,8 +65,9 @@ const processClaim = req => {
         careHomeCostsSubmit
     } = req.body;
 
+    // Checking claim logic here:
+
     // Check if the claim has another benefit already
-    // error = otherBenefitSubmit == 'Yes' ? true : false;
 
     if (otherBenefitSubmit == 'Yes') {
         return {
@@ -76,7 +77,6 @@ const processClaim = req => {
     };
 
     // Check pension age
-    // error = pensionAgeSubmit == 'No' ? true : false;
 
     if (pensionAgeSubmit == 'No') {
         return {
@@ -95,7 +95,7 @@ const processClaim = req => {
     };
 
     // Check severe disability
-    // error = severeDisabilitySubmit == 'No' ? true : false;
+
     if (severeDisabilitySubmit == 'No') {
         return {
             error: true,
@@ -103,17 +103,8 @@ const processClaim = req => {
         };
     };
 
-    // Check supervision
-    // error = supervisionSubmit == 'No' ? true : false;
-    // if (supervisionSubmit == 'No') {
-    //     return {
-    //         error: true,
-    //         message: 'The claim has been denied due to not needing supervision.'
-    //     };
-    // };
-
     // Check 6 months
-    // error = sixMonthsSubmit == 'No' && supervisionSubmit == 'No' ? true : false;
+
     if (sixMonthsSubmit == 'No' && supervisionSubmit == 'No') {
         return {
             error: true,
@@ -165,6 +156,8 @@ const processClaim = req => {
             message: 'Claim has been denied due to being in a care home, without paying care home costs.'
         };
     };
+
+    // If no errors at this point, return no erros and a message of success.
 
     return {
         error: false,

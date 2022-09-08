@@ -20,24 +20,19 @@ const client = new Client({
     database: config.database
 });
 
-// Function to get the names of all databases in the database using the default connection
+// Function to get the names of all databases in the database using the default connection.
 
 const getDatabaseNames = async () => {
-    // Simple function to query the setup database for the database names
-    const query = `SELECT datname FROM pg_database`;
-    const result = await setup.query(query);
+    const result = await setup.query('SELECT datname FROM pg_database');
     return result.rows;
 }
 
-// sets up a new database and 
+// sets up a new database.
 const setupDatabase = async () => {
 
     await dbConnect(true);
     // Grab names of database and store in variable
     const databases = await getDatabaseNames();
-
-    // list the database names
-    // console.log(databases);
 
     // set flag default to false
 
@@ -45,7 +40,6 @@ const setupDatabase = async () => {
 
     for (i = 0; i < databases.length; i++) {
         if (databases[i].datname == config.database) {
-            // console.log("Database already exists");
 
             // set flag to true if database exists
             databaseExists = true;
@@ -59,7 +53,6 @@ const setupDatabase = async () => {
     };
 
     // Disconnect from the database to allow a new connection
-
     await dbDisconnect(true);
 };
 
@@ -74,9 +67,11 @@ async function dbConnect(init=false) {
 
     if (init) {
         await setup.connect();
-        // console.log(`Connected to the setup database`); 
+
     } else {
         await client.connect();
+
+        // Print to the console which database we are connected to and what port we are using.
         console.log(`Connected to ${client.database} on port ${client.port}`);  
     };
 };
@@ -86,9 +81,11 @@ async function dbDisconnect(init=false) {
 
     if (init) {
         await setup.end();
-        // console.log(`Disconnected from the setup database`);
+
     } else {
         await client.end();
+
+        // If we disconnect, print it to the console.
         console.log(`Ending connection to ${client.database}.`);
     }; 
 };
@@ -197,10 +194,11 @@ const buildRateCodeTable = async () => {
             INSERT INTO "rateCode" (code, rate) VALUES ('L', 61.85);
             INSERT INTO "rateCode" (code, rate) VALUES ('N', 0.00);`;
 
-    // first part of the query will run, but if the table is already populate, it will throw an error. Try catch handles this.
+    // first part of the query will run, but if the table is already populated, it will throw an error. Try catch handles this.
     try {
         await client.query(query);
     } catch (error) {
+        // If error is not what we expect, we will log the error.
         if (!error.constraint == 'ratecode_pkey') {
             console.log(error);
         };
@@ -210,6 +208,7 @@ const buildRateCodeTable = async () => {
 };
 
 const buildCustomerAccessTokenTable = async () => {
+    // Create a customer information access table of tokens.
     const query = `CREATE TABLE IF NOT EXISTS "customerAccessToken"
         (
             "id" SERIAL PRIMARY KEY,

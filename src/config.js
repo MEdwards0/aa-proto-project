@@ -1,3 +1,6 @@
+// this file sets variables to contain data from an .env file. If there is no data found there, set the variables to a default value.
+// uses dotenv node module to carry over .env variables to use here.
+
 require('dotenv').config();
 
 const env = process.env;
