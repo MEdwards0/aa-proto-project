@@ -551,7 +551,7 @@ const handler = () => {
         // Dates between client and server can vary. This implementation seems to work correctly now.
 
         const dob = new Date(Date.parse(`${req.body.dobYear}-${req.body.dobMonth}-${req.body.dobDay}`));
-
+        console.log(dob);
         // Check date inputs are not invalid
 
         const dateNow = new Date();

@@ -1,12 +1,3 @@
- - tidy up files
-    - remove commented out code <--
-    - remove useless comments <--
-
- - add meaningful comments <--
-
- - write tests for the code
-
-
 Optional:
 
  - Add logger to the program instead of console.logs
