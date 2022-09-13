@@ -12,9 +12,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
 }))
-const handler = require('./viewHandler');
+const handler = require('./src/viewHandler');
 
-app.use(express.static(path.join('./public')));
+app.use(express.static(path.join('./src/public')));
 app.use('controllers', express.static(path.join(__dirname, './controllers')));
 app.use(cookieParser());
 
@@ -23,14 +23,14 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded(({ extended: false })));
 app.use(bodyParser.json());
 
-app.set('views', '../src/views');
+app.set('views', './src/views');
 
 app.set('view engine', 'njk');
 
 nunjucks.configure(
     [
-        "../node_modules/govuk-frontend",
-        "../src/views",
+        "./node_modules/govuk-frontend",
+        "./src/views",
     ],
     {
         autoescape: true,

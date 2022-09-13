@@ -1,6 +1,6 @@
 // This file runs the server and subsequently listens to the app.
 
-const app = require('./app');
+const app = require('../app');
 const { dbConnect, setupDatabase, buildSchemaTables} = require('./database/connection');
 const {port} = require('./config')
 
