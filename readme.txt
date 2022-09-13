@@ -1,4 +1,4 @@
-A .env file should be placed inside the src folder.
+A .env file should be placed inside the root folder (same level as this readme).
 
 Set up the file to contain the following, replacing the appropriate variables with your postgres database credentials.
 The following are default values.
@@ -12,6 +12,6 @@ DATABASE="database.name"
 
 - requires node version 17.6.0 to run.
 - run all dependencies by going to terminal and typing in the root folder: npm install
-- run the program by going to the 'src' folder in terminal and type: node server.js
+- run the program by typing from the root folder in terminal: npm start
 
 ALL OF THIS IS SUBJECT TO CHANGE.
