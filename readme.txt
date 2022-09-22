@@ -7,9 +7,14 @@ DB_USER="username"
 DB_HOST="localhost"
 DB_PASS="password"
 DB_PORT=5432
-# The database here does not need to exist, but still needs assignment.
+# The database here does not need to exist yet, but still needs assignment. A new database will be created if it doesn't exist.
 DATABASE="database.name"
-PORT=3001
+
+# This is the default port. If no other port is specified, 3000 will be used.
+PORT=3000
+
+# If this is set to true, then a default admin account will be created. default username will be 'admin' and the password will be 'pass'.
+DEFAULT_ACCOUNT=false
 
 - requires node version 17.6.0+ to run.
 - run all dependencies by going to terminal and typing in the root folder: npm install
