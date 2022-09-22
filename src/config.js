@@ -10,6 +10,8 @@ const databaseUser = env.USER || 'postgres';
 const databasePass = env.DB_PASS || 'password';
 const databasePort = env.DB_PORT || 5432;
 const database = env.DATABASE || 'postgres';
+const defaultAccount = env.DEFAULT_ACCOUNT == 'true' ? true : false;
+
 
 const port = env.PORT || 3000;
 
@@ -19,5 +21,6 @@ module.exports = {
     databasePass,
     databasePort,
     database,
+    defaultAccount,
     port
 };

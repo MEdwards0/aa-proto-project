@@ -414,30 +414,6 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             }
         },
 
-        // // Check a customer access token, returning true or false as an error object.
-
-        verifyCustomerAccessToken: async (token) => {
-            try {
-                const query = `SELECT * WHERE "token" = '${token}'`;
-                const result = await database.query(query);
-
-                if (result.rows[0].token == token) {
-                    return {
-                        error: false
-                    };
-                };
-
-                return {
-                    error: true
-                };
-
-            } catch (error) {
-                return {
-                    error: true
-                }
-            }
-        },
-
         // // Add customer security answers when a new customer adds their information. Answers are encrypted at this stage. This function takes an object and needs required parameters for use.
         // // Returns an object with an error of true or false and an error message where necessary.
 

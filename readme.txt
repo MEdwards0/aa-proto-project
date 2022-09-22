@@ -9,9 +9,12 @@ DB_PASS="password"
 DB_PORT=5432
 # The database here does not need to exist, but still needs assignment.
 DATABASE="database.name"
+PORT=3001
 
-- requires node version 17.6.0 to run.
+- requires node version 17.6.0+ to run.
 - run all dependencies by going to terminal and typing in the root folder: npm install
 - run the program by typing from the root folder in terminal: npm start
+
+
 
 ALL OF THIS IS SUBJECT TO CHANGE.

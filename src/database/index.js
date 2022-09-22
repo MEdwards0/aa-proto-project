@@ -4,7 +4,7 @@ const { encryptInput, checkEncryption } = require('../hash/encryptionModel');
 
 // Combines all the database folder files into one place.
 
-const handlerFactory = require('./controller');
+const handlerFactory = require('./handlerFunctions');
 
 // get all the definitions of the primary implementations of the functions.
 const databaseModel = require('./model');

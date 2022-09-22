@@ -223,4 +223,20 @@ const buildCustomerAccessTokenTable = async () => {
     await client.query(query);
 };
 
-module.exports = { client, setup, dbConnect, setupDatabase, buildSchemaTables };
+// Create a default account if one is specified in the .env file.
+
+const defaultAccount = async () => {
+
+    if (config.defaultAccount) {
+        const query = `INSERT INTO "user" ("username", "password", "accountActive") VALUES ('ADMIN','$2b$10$gucmqGGrrIfCECPSAB4ScesJOGG0u8UITRDMH2R.miDeXLe6h/0aq', true );`
+        await client.query(query);
+
+        const idQuery = `SELECT id FROM "user" WHERE "username" = 'ADMIN'`;
+        const result = await client.query(idQuery);
+
+        const adminQuery = `INSERT INTO "admin" ("user_id", "isAdmin") VALUES (${result.rows[0].id}, 'true');`
+        await client.query(adminQuery);
+    }
+};
+
+module.exports = { client, setup, dbConnect, setupDatabase, buildSchemaTables, defaultAccount };

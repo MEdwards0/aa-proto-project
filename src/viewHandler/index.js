@@ -55,7 +55,7 @@ const handler = () => {
                 res.render('login', { error: page });
 
             } else {
-                addClassMethods(user); // just adding class methods here in case they are to be used at any point in this route.
+                addClassMethods(user);
                 const result = await database.handleGetToken(user.token, user.username);
                 if (!result.status) {
                     req.session.destroy(); // destroy the current session.

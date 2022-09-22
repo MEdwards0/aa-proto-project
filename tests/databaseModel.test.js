@@ -39,14 +39,6 @@ describe('model.js', () => {
                 const fakeDatabase = {
                     async query(string) {
                         throw 'There was an error'
-                        // return {
-                        //     rows: [
-                        //         {
-                        //             username: 'user',
-                        //             pass: 'password',
-                        //             id: 1
-                        //         }]
-                        // }
                     }
                 };
 
@@ -928,48 +920,6 @@ describe('model.js', () => {
             });
         });
     })
-
-    describe('verifyCustomerAccessToken', () => {
-        const fakeDatabase = {
-            async query(query) {
-                if (query === `SELECT * WHERE "token" = 'exampleToken'`) {
-                    return {
-                        rows: [{
-                            token: 'exampleToken'
-                        }]
-                    }
-                }
-
-                if (query === `SELECT * WHERE "token" = 'error'`) {
-                    throw 'error'
-                }
-
-                return {
-                    rows: []
-                }
-
-            }
-        };
-
-        const { verifyCustomerAccessToken } = model(fakeDatabase, {}, {});
-
-        describe('When run it should', () => {
-            test('return {error: false} if a token is found', async () => {
-                const result = await verifyCustomerAccessToken('exampleToken');
-                expect(result).toStrictEqual({ error: false })
-            });
-
-            test('return {error: true} if a token cannot be found', async () => {
-                const result = await verifyCustomerAccessToken('noToken');
-                expect(result).toStrictEqual({ error: true })
-            });
-
-            test('return {error: true} if an error is thrown', async () => {
-                const result = await verifyCustomerAccessToken('error');
-                expect(result).toStrictEqual({ error: true })
-            });
-        });
-    });
 
     describe('addCustomerSecurity', () => {
         const fakeDatabase = {

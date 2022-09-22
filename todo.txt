@@ -2,4 +2,6 @@ Optional:
 
  - Add logger to the program instead of console.logs
 
- - set up docker container
+ - Create a default account when the database is first created to allow users to jump straight in to the application without needing to add one then alter the user in the database.
+
+ - set up docker container (bcrypt is completely incompatible, making this step not possible for now).
