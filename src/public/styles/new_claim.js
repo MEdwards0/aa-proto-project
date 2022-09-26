@@ -527,6 +527,8 @@ document.querySelectorAll('input[name="new-claim"]').forEach(element => {
 
         if (document.activeElement === radioNo) {
             startClaimButton.innerHTML = 'Exit';
+        } else {
+            startClaimButton.innerHTML = 'Next';
         };
     });
 });
