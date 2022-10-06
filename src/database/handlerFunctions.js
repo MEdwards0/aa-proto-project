@@ -22,7 +22,8 @@ const factory = ({
     addCustomerSecurity,
     getAllUsers,
     toggleAdmin,
-    toggleAccountActive
+    toggleAccountActive,
+    adminQueryToken,
 }) => {
 
     // Add a user to the database. Returns an error if there is a name taken. Also adds a record to the admin table
@@ -301,6 +302,14 @@ const factory = ({
         await toggleAccountActive(id, username);
     };
 
+    // Query a token on the database using a username
+
+    const handleAdminQueryToken = async (username) => {
+        
+        const result = await adminQueryToken(username.toUpperCase());
+        return result;
+    };
+
     // return the functions when the factory function is invoked. 
 
     return {
@@ -318,7 +327,8 @@ const factory = ({
         handleAddNewCustomer,
         handleGetAllUsers,
         handleToggleAdmin,
-        handleToggleAccountActive
+        handleToggleAccountActive,
+        handleAdminQueryToken
     }
 };
 

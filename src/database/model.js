@@ -514,7 +514,25 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 return false
             }
         },
+
+        adminQueryToken: async (username) => {
+            try {   
+                const query = `SELECT * FROM "token" WHERE "user_name" = '${username}';`;
+                const result = await database.query(query);
+
+                return {
+                    token: result.rows[0].token,
+                    error: false
+                };
+
+            } catch (error) {
+                return {
+                    error: true
+                };
+            }
+        },
     }
+
 };
 
 module.exports = databaseModel;

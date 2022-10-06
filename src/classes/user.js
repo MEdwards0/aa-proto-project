@@ -1,9 +1,8 @@
 // Create a user class here for those using the application.
 
 class User {
-    constructor(username, password, activeAccount = false) {
+    constructor(username, activeAccount = false) {
         this.username = username;
-        this.password = password
         this.loggedIn = false;
         this.token = undefined;
         this.customerAccessToken = undefined;

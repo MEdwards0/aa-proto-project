@@ -2,8 +2,8 @@
 
 function adminClass(User) {
     class Admin extends User {
-        constructor(username, password, activeAccount = false) {
-            super(username, password, activeAccount);
+        constructor(username, activeAccount = false) {
+            super(username, activeAccount);
             this.userLevel = 'admin';
         };
     };
