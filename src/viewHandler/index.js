@@ -106,11 +106,11 @@ const handler = () => {
             // assign the user the correct class depending on admin level.
 
             if (result.profile.admin) {
-                req.session.class = req.session.id = new Admin(username.toUpperCase(), password, result.profile.accountActive);
+                req.session.class = req.session.id = new Admin(username.toUpperCase(), result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
             } else {
-                req.session.class = req.session.id = new User(username.toUpperCase(), password, result.profile.accountActive);
+                req.session.class = req.session.id = new User(username.toUpperCase(), result.profile.accountActive);
                 user = req.session.class; // set the user class here
 
             };
@@ -121,8 +121,9 @@ const handler = () => {
             if (user.activeAccount) {
                 res.redirect('user-home');
             } else {
-                const page = { error: true, activeAccount: user.activeAccount }
-                res.render('login', { page: page })
+                const page = { error: true, activeAccount: user.activeAccount };
+                await database.handleRemoveToken(user.token);
+                res.render('login', { page: page });
             };
 
         } else {
@@ -733,6 +734,24 @@ const handler = () => {
             return;
         }
 
+        // add code here to delete any access tokens for the updated user.
+        try {
+            const result = await database.handleAdminQueryToken(username);
+            console.log('username is:', username);
+            console.log('result.token is:', result.token);
+            console.log('result.error is:', result.error);
+
+            if (!result.error) {
+                console.log("OMG WE ARE IN THE IF!!!");
+                console.log('token is:', result.token);
+                await database.handleRemoveToken(result.token);
+            }
+            
+        } catch (error) {
+            console.log(error);
+        }
+        
+
         await database.handleToggleAccountActive(id, username.toUpperCase());
 
         res.redirect('/manage-users');
@@ -794,5 +813,3 @@ const handler = () => {
 // Export the return result of calling the handler function.
 
 module.exports = handler();
-
-
