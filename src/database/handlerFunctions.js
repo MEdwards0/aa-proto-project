@@ -7,7 +7,7 @@ const factory = ({
     addAdmin, 
     deleteExpiredTokens, 
     addToken, 
-    getToken, 
+    checkToken, 
     deleteToken, 
     deleteUnusedTokens, 
     findNino, 
@@ -100,12 +100,12 @@ const factory = ({
 
     // Get a token from the database.
 
-    const handleGetToken = async (token, name) => {
-        // Firstly get rid of any expired tokens so subsequent queries have up to date data.
+    const handleCheckToken = async (token, name) => {
+        // Firstly get rid of any expired tokens so subsequent queries have up-to-date data.
         await deleteExpiredTokens();
 
-        // Call the getToken function using a token and a name. Returns a true or false status.
-        const result = await getToken(token, name);
+        // Call the checkToken function using a token and a name. Returns a true or false status.
+        const result = await checkToken(token, name);
 
         if (result.status) {
             // Remove all previous tokens for the user except the one we just got.
@@ -315,7 +315,7 @@ const factory = ({
     return {
         handleAddUser,
         handleLogIn,
-        handleGetToken,
+        handleCheckToken,
         handleRemoveToken,
         handleValidateNino,
         handleGetSecurityQuestions,

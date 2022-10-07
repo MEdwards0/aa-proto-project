@@ -70,10 +70,10 @@ app.post('/make-account-admin', handler.makeAccountAdminSubmit);
 
 // DEV
 
-app.get('/clearSession', (req, res) => {
-    req.session.destroy();
-    res.send('session cleared');
-});
+// app.get('/clearSession', (req, res) => {
+//     req.session.destroy();
+//     res.send('session cleared');
+// });
 
 // POSTS
 
