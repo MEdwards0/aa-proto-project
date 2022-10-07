@@ -116,7 +116,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
         // // Queries the database for a token and a name inputted here. Returns username, id and token data if a match is found.
 
-        getToken: async (token, username) => {
+        checkToken: async (token, username) => {
             try {
                 const query = `SELECT * FROM "token" WHERE token = '${token}' AND user_name = '${username}'`;
                 const result = await database.query(query);
@@ -507,18 +507,24 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 } else {
                     const request = `UPDATE "user" SET "accountActive" = 'true' WHERE "id" = ${id} AND "username" = '${username}';`;
                     await database.query(request);
-                }
-                return true
+                };
+
+                return true;
+
             } catch (error) {
                 console.log('model.js toggleAccountActive \n\n', error);
-                return false
+                return false;
             }
         },
+
+        // Request a token from the database by searching for a username.
 
         adminQueryToken: async (username) => {
             try {   
                 const query = `SELECT * FROM "token" WHERE "user_name" = '${username}';`;
                 const result = await database.query(query);
+
+                // return the token and an error response if there was no error.
 
                 return {
                     token: result.rows[0].token,
@@ -526,10 +532,13 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 };
 
             } catch (error) {
+                console.log('model.js adminQueryToken \n\n', error);
+
+                // return an error response to the application.
                 return {
                     error: true
                 };
-            }
+            };
         },
     }
 
