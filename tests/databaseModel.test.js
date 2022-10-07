@@ -303,7 +303,7 @@ describe('model.js', () => {
         });
     });
 
-    describe('getToken', () => {
+    describe('checkToken', () => {
         describe('When getToken is called it should', () => {
             test('Return a useful object that we can use , when seccessful', async () => {
 
@@ -325,9 +325,9 @@ describe('model.js', () => {
                         }
                     }
                 }
-                const { getToken } = model(fakeDatabase, {}, {});
+                const { checkToken } = model(fakeDatabase, {}, {});
 
-                const result = await getToken('exampleToken', 'usernameTest');
+                const result = await checkToken('exampleToken', 'usernameTest');
 
                 expect(result).toStrictEqual({ status: true, token: 'exampleToken', id: 1, username: 'usernameTest' });
             });
@@ -374,7 +374,7 @@ describe('model.js', () => {
                 expect(result).toStrictEqual({ status: true, token: 'token', id: 1, username: 'username' })
             });
         });
-    })
+    });
 
     describe('deleteExpiredTokens', () => {
         test('The SQL should be what we expect', async () => {
@@ -643,7 +643,7 @@ describe('model.js', () => {
 
             });
         });
-    })
+    });
 
     describe('getAward', () => {
         const fakeDatabase = {
@@ -820,7 +820,7 @@ describe('model.js', () => {
         });
     });
 
-    describe('checkCustomerAccessToken', () => {
+    describe('addCustomerAccessToken', () => {
 
         const fakeDatabase = {
             async query(query) {
@@ -919,7 +919,7 @@ describe('model.js', () => {
                 expect(result).toBe(true);
             });
         });
-    })
+    });
 
     describe('addCustomerSecurity', () => {
         const fakeDatabase = {
@@ -1091,7 +1091,7 @@ describe('model.js', () => {
                 expect(result).toBe(false);
             });
         });
-    })
+    });
 
     describe('toggleAccountActive', () => {
         const fakeDatabase = {
@@ -1128,5 +1128,31 @@ describe('model.js', () => {
                 expect(result).toBe(false);
             });
         });
-    })
+    });
+
+    describe('adminQueryToken', () => {
+        const fakeDatabase = {
+            async query(query) {
+                if (query == `SELECT * FROM "token" WHERE "user_name" = 'validUsername';`) {
+                    return {rows: [{token: 'abcdefg123'}]};
+                };
+
+                throw 'Invalid SQL query';
+            }
+        };
+
+        const {adminQueryToken} = model(fakeDatabase, {}, {});
+        
+        describe('when run it should', () => {
+            test('return a token if a user is found and provide and error being false', async () => {
+                const result = await adminQueryToken('validUsername');
+                expect(result).toStrictEqual({token: 'abcdefg123', error: false});
+            });
+
+            test('return an object with an error property being true if an error occurs or no matches are found', async () => {
+                const result = await adminQueryToken('invalidUsername');
+                expect(result).toStrictEqual({error: true});
+            });
+        });
+    });
 });
