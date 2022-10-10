@@ -549,6 +549,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                     return {error: true};
                 };
 
+                // return the result token and send false error back to the server.
+
                 return {
                     token: result.rows[0].token,
                     error: false
