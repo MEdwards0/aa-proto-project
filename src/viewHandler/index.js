@@ -1,5 +1,6 @@
 // This file handles the views for the application. it depends on database calls, claim functionality, and Claim functionality
-const database = require('../database');
+// const database = require('../database');
+const controller = {database: require('../database')};
 const claim = require('../claim');
 const { User, Admin } = require("../classes");
 const { addClassMethods } = require('../classes/methods');
@@ -28,7 +29,7 @@ const handler = () => {
                     userLevel: user.userLevel
                 };
 
-                const result = await database.handleCheckToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
 
                 user.removeCustomerInfo(); // Remove any customer information stored in the user class.
 
@@ -56,7 +57,7 @@ const handler = () => {
 
             } else {
                 addClassMethods(user);
-                const result = await database.handleCheckToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
                 if (!result.status) {
                     req.session.destroy(); // destroy the current session.
                     const page = { error: true }
@@ -86,7 +87,7 @@ const handler = () => {
 
     const createUser = async (req, res) => {
         const { username, password } = req.body;
-        const result = await database.handleAddUser(username.toUpperCase(), password);
+        const result = await controller.database.handleAddUser(username.toUpperCase(), password);
 
         if (result.status) {
             res.render('confirm_user_created');
@@ -98,7 +99,7 @@ const handler = () => {
     const signIn = async (req, res) => {
         let user; // set to contain user class
         const { username, password } = req.body;
-        const result = await database.handleLogIn(username.toUpperCase(), password);
+        const result = await controller.database.handleLogIn(username.toUpperCase(), password);
 
         // Check the user account level if there is one to be found:
         if (!result.error) {
@@ -122,7 +123,7 @@ const handler = () => {
                 res.redirect('user-home');
             } else {
                 const page = { error: true, activeAccount: user.activeAccount };
-                await database.handleRemoveToken(user.token);
+                await controller.database.handleRemoveToken(user.token);
                 res.render('login', { page: page });
             };
 
@@ -144,7 +145,7 @@ const handler = () => {
                 addClassMethods(user);
             }
 
-            await database.handleRemoveToken(user.token);
+            await controller.database.handleRemoveToken(user.token);
             user.removeCustomerInfo();
             user.clearToken();
             user.logOut();
@@ -172,7 +173,7 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
 
                 const page = {
                     route: req.params.route,
@@ -204,9 +205,9 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
                 if (!result.error) {
-                    const response = await database.handleValidateNino(req.body.nino.toUpperCase());
+                    const response = await controller.database.handleValidateNino(req.body.nino.toUpperCase());
 
 
                     const page = {
@@ -216,7 +217,7 @@ const handler = () => {
                         username: user.username
                     };
 
-                    const customer = await database.handleGetCustomer(page.nino);
+                    const customer = await controller.database.handleGetCustomer(page.nino);
 
                     if (customer.error) {
                         page.error = customer.error;
@@ -232,7 +233,7 @@ const handler = () => {
                     if (page.error) {
                         res.render('validate_nino', { page: page });
                     } else {
-                        const result = await database.handleGetSecurityQuestions(req.body.nino.toUpperCase());
+                        const result = await controller.database.handleGetSecurityQuestions(req.body.nino.toUpperCase());
                         // finally trust for the nino to be set in user class
 
                         user.setCustomerNino(req.body.nino.toUpperCase());
@@ -263,7 +264,7 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn) {
             try {
-                const token = await database.handleGetToken(user.token, user.username);
+                const token = await controller.database.handleCheckToken(user.token, user.username);
 
                 page = {
                     nino: user.customerNino,
@@ -274,11 +275,11 @@ const handler = () => {
 
                 if (!token.error) {
 
-                    const result = await database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne.toUpperCase(), req.body.answerTwo.toUpperCase(), req.body.answerThree.toUpperCase());
+                    const result = await controller.database.handleCheckSecurityAnswers(user.customerNino, req.body.answerOne.toUpperCase(), req.body.answerTwo.toUpperCase(), req.body.answerThree.toUpperCase());
 
                     page.error = result.error;
 
-                    const customer = await database.handleGetCustomer(page.nino);
+                    const customer = await controller.database.handleGetCustomer(page.nino);
 
                     if (customer.error) {
                         page.error = customer.error;
@@ -290,7 +291,7 @@ const handler = () => {
                     page.dob = customer.dob;
 
                     if (page.error) {
-                        const questions = await database.handleGetSecurityQuestions(page.nino);
+                        const questions = await controller.database.handleGetSecurityQuestions(page.nino);
                         page.questions = questions.questions;
 
                         res.render('security_questions', { page: page });
@@ -298,7 +299,7 @@ const handler = () => {
                     } else {
 
                         // Issue new access token for customer information here.
-                        const token = await database.handleAddNewCustomerAccessToken(user.username, user.customerNino);
+                        const token = await controller.database.handleAddNewCustomerAccessToken(user.username, user.customerNino);
                         // Set the customer access token to the user class
                         user.setCustomerAccessToken(token)
 
@@ -335,23 +336,23 @@ const handler = () => {
                 };
 
                 // check token validity
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(user.customerNino);
+                const nino = await controller.database.handleValidateNino(user.customerNino);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
 
                 // check security questions
-                const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
+                const security = await controller.database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
                 security.error ? page.error = true : page.error = page.error;
 
                 // get customer information for the page rendering here:
 
-                const customer = await database.handleGetCustomer(page.nino);
+                const customer = await controller.database.handleGetCustomer(page.nino);
 
                 if (customer.error) {
                     console.log('There was an error getting the customer information');
@@ -398,21 +399,21 @@ const handler = () => {
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(user.customerNino);
+                const nino = await controller.database.handleValidateNino(user.customerNino);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
                 user.customerNino == req.params.nino ? page.error = page.error : page.error = true;
 
                 // check customer access token
-                const security = await database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
+                const security = await controller.database.handleCheckCustomerAccessToken(user.customerAccessToken, user.username, user.customerNino);
                 security.error ? page.error = true : page.error = page.error;
 
-                const customer = await database.handleGetCustomer(page.nino);
+                const customer = await controller.database.handleGetCustomer(page.nino);
 
 
                 if (customer.error) {
@@ -466,11 +467,11 @@ const handler = () => {
                 }
 
                 // check token validity
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await controller.database.handleCheckToken(user.token, user.username);
                 result.error ? page.error = true : page.error = page.error;
 
                 // check nino validity
-                const nino = await database.handleValidateNino(user.customerNino);
+                const nino = await controller.database.handleValidateNino(user.customerNino);
                 nino.error ? page.error = true : page.error = page.error;
 
                 // check nobody fiddled with the cookies
@@ -497,7 +498,7 @@ const handler = () => {
                     };
 
                     // Update cutomer table with claim details.
-                    const response = await database.handleUpdateClaim(newClaim);
+                    const response = await controller.database.handleUpdateClaim(newClaim);
 
                     if (response.error) {
                         console.log(response.errorMessage);
@@ -537,7 +538,7 @@ const handler = () => {
 
     const addCustomerSecurityForm = async (req, res) => {
 
-        const result = await database.handleValidateNino(req.body.nino.toUpperCase());
+        const result = await controller.database.handleValidateNino(req.body.nino.toUpperCase());
 
         // Check the date input format
 
@@ -612,7 +613,7 @@ const handler = () => {
     };
 
     const addCustomerSubmit = async (req, res) => {
-        const result = await database.handleValidateNino(req.session.nino);
+        const result = await controller.database.handleValidateNino(req.session.nino);
 
         // Any error will result in a true condition. If the db is broken for instance.
         if (result.error && result.message == 'undefined') {
@@ -631,7 +632,7 @@ const handler = () => {
                 answerThree: req.body.answerThree.toUpperCase()
             };
 
-            const result = await database.handleAddNewCustomer(customer)
+            const result = await controller.database.handleAddNewCustomer(customer)
 
             if (!result.error) {
                 req.session.destroy(); // reset session data
@@ -684,7 +685,7 @@ const handler = () => {
 
         if (user.token != undefined && user.activeAccount && user.loggedIn && user.userLevel == 'admin') {
             try {
-                const result = await database.handleGetAllUsers(user.username); // Put username here to ignore user.
+                const result = await controller.database.handleGetAllUsers(user.username); // Put username here to ignore user.
 
                 if (result.error) {
                     const page = { 
@@ -736,23 +737,19 @@ const handler = () => {
 
         // add code here to delete any access tokens for the updated user.
         try {
-            const result = await database.handleAdminQueryToken(username);
-            console.log('username is:', username);
-            console.log('result.token is:', result.token);
-            console.log('result.error is:', result.error);
-
+            const result = await controller.database.handleAdminQueryToken(username);
+           
+            // if result error is false, request the removal of the token from the database.
             if (!result.error) {
-                console.log("OMG WE ARE IN THE IF!!!");
-                console.log('token is:', result.token);
-                await database.handleRemoveToken(result.token);
-            }
+                await controller.database.handleRemoveToken(result.token);
+            };
             
         } catch (error) {
             console.log(error);
-        }
+        };
         
-
-        await database.handleToggleAccountActive(id, username.toUpperCase());
+        // request the controller to toggle the account active status.
+        await controller.database.handleToggleAccountActive(id, username.toUpperCase());
 
         res.redirect('/manage-users');
     };
@@ -778,7 +775,7 @@ const handler = () => {
             return;
         };
 
-        await database.handleToggleAdmin(req.body.id);
+        await controller.database.handleToggleAdmin(req.body.id);
 
         res.redirect('/manage-users');
     };
