@@ -28,14 +28,17 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                     status: true,
                     error: false,
                     id: result.rows[0].id,
-                }
+                };
+
             } catch (error) {
-                // console.log(error)
-                // console.log(error.constraint);
+                if (error.constraint == undefined) {
+                    console.log('model.js: addUser \n\n', error);
+                };
+                
                 return {
                     error: true,
-                }
-            }
+                };
+            };
         },
 
         // // Function to add admins to the database that takes an id as an argument. This implementation sets the value to false.
@@ -45,9 +48,9 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 await database.query(`INSERT INTO "admin" ("user_id", "isAdmin") VALUES (${id}, 'false')`);
                 return true;
             } catch (error) {
-                console.log(error);
+                console.log('model.js: addAdmin \n\n', error);
                 return false;
-            }
+            };
         },
 
         // // Get user data from the database where we can find the username. If not, return an error and a message, otherwise, the user data.
@@ -60,7 +63,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
                 if (result.rows[0] == undefined) {
                     throw 'No user found'
-                }
+                };
 
                 const adminQuery = `SELECT * FROM "admin" WHERE user_id = ${result.rows[0].id}`;
                 const resultAdmin = await database.query(adminQuery);
@@ -72,31 +75,38 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                     password: result.rows[0].password,
                     accountActive: result.rows[0].accountActive,
                     admin: resultAdmin.rows[0].isAdmin
-                }
+                };
+
             } catch (error) {
+                console.log('model.js: getUser \n\n', error);
                 return {
                     status: false,
                     error: 'There was an error getting the user'
-                }
-            }
+                };
+            };
         },
 
         // // Function to take an input and check its hash value. Returns an error true or false depending on response.
 
         checkPassword: async (input, hash) => {
-            const result = await checkEncryption(input, hash);
 
-            if (result) {
+            try {
+                const result = await checkEncryption(input, hash);
+
+                if (result) {
+                    return {
+                        status: result,
+                        error: false
+                    };
+                };
+
                 return {
                     status: result,
-                    error: false
-                }
-            };
+                    error: true
+                };
 
-            return {
-                status: result,
-                error: true
-
+            } catch (error) {
+                console.log('model.js: checkPassword \n\n', error);
             };
         },
 
@@ -109,9 +119,9 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 await database.query(query);
                 return token;
             } catch (error) {
-                return { error: true }
+                console.log('model.js: addToken \n\n', error);
+                return { error: true };
             };
-
         },
 
         // // Queries the database for a token and a name inputted here. Returns username, id and token data if a match is found.
@@ -133,10 +143,11 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 };
 
             } catch (error) {
+                console.log('model.js: checkToken \n\n', error);
                 return {
                     status: false
-                }
-            }
+                };
+            };
         },
 
         // // Deletes all expired tokens from the database.
@@ -145,11 +156,11 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             try {
                 const query = `DELETE FROM "token" WHERE expires_at < NOW()`;
                 await database.query(query);
-                return true
+                return true;
             } catch (error) {
-                return false
-            }
-
+                console.log('model.js: deleteExpiredTokens \n\n', error);
+                return false;
+            };
         },
 
         // // Deletes any duplicate tokens for the user active user.
@@ -160,8 +171,9 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 await database.query(query);
                 return true;
             } catch (error) {
+                console.log('model.js: deleteUnusedTokens \n\n', error);
                 return false;
-            }
+            };
         },
 
         // // Deletes any requested tokens from the database.
@@ -170,29 +182,35 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             try {
                 const query = `DELETE FROM "token" WHERE "token" = '${token}'`;
                 await database.query(query);
-                return true
+                return true;
             } catch (error) {
-                return false
-            }
+                console.log('model.js: deleteToken \n\n', error);
+                return false;
+            };
         },
 
         // // Query to find an nino in the database. Returns with an object with a status property of true or false.
 
         findNino: async (nino) => {
-            const query = `SELECT "NINO" FROM "customer" WHERE "NINO" = '${nino}'`
-            const result = await database.query(query);
+            try {
+                const query = `SELECT "NINO" FROM "customer" WHERE "NINO" = '${nino}'`
+                const result = await database.query(query);
 
-            if (result.rows[0] == undefined) {
-                return {
-                    status: false,
-                    message: 'undefined'
+                if (result.rows[0] == undefined) {
+                    return {
+                        status: false,
+                        message: 'undefined'
+                    };
                 };
-            }
 
-            return {
-                status: true,
-                message: 'found'
+                return {
+                    status: true,
+                    message: 'found'
+                };
+            } catch (error) {
+                console.log('model.js: findNino \n\n', error);
             };
+
         },
 
         // // Return security questions for the requested nino.
@@ -205,9 +223,9 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 const result = await database.query(query);
                 return result;
             } catch (error) {
-                console.log(error);
-                return false
-            }
+                console.log('model.js: getSecurityQuestions \n\n', error);
+                return false;
+            };
         },
 
         // // Check security answers inputted for what we have in the database related to the inputted nino. Return true or false if they match.
@@ -231,8 +249,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                 return false;
 
             } catch (error) {
-                console.log(error);
-            }
+                console.log('model.js: checkSecurityAnswers \n\n', error);
+            };
         },
 
         // // Function to return all customer data for the inputted nino.
@@ -255,13 +273,14 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
                     rateCode: result.rows[0].rateCode,
                     claimedAA: result.rows[0].claimedAA,
                     error: false
-                }
+                };
             } catch (error) {
+                console.log('model.js: getCustomer \n\n', error);
                 return {
                     error: true,
                     errorMessage: error
-                }
-            }
+                };
+            };
         },
 
         // // Function to get the award rate of the customer dependant on the nino.
@@ -297,12 +316,13 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
                 return {
                     error: false,
-                }
+                };
             } catch (error) {
+                console.log('model.js: addClaim \n\n', error);
                 return {
                     error: true,
                     errorMessage: error
-                }
+                };
             };
         },
 
@@ -324,7 +344,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
                 return result.rows[0];
             } catch (error) {
-                console.log('model.js: addCustomer \n\n', error)
+                console.log('model.js: addCustomer \n\n', error);
                 return {
                     error: true,
                     errorMessage: 'Error adding customer to database.'
@@ -520,11 +540,14 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
         // Request a token from the database by searching for a username.
 
         adminQueryToken: async (username) => {
-            try {   
-                const query = `SELECT * FROM "token" WHERE "user_name" = '${username}';`;
+            try {
+                const query = `SELECT "token" FROM "token" WHERE "user_name" = '${username}';`;
                 const result = await database.query(query);
 
                 // return the token and an error response if there was no error.
+                if (result.rows[0] == undefined) {
+                    return {error: true};
+                };
 
                 return {
                     token: result.rows[0].token,
