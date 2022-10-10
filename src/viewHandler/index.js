@@ -28,7 +28,7 @@ const handler = () => {
                     userLevel: user.userLevel
                 };
 
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await database.handleCheckToken(user.token, user.username);
 
                 user.removeCustomerInfo(); // Remove any customer information stored in the user class.
 
@@ -56,7 +56,7 @@ const handler = () => {
 
             } else {
                 addClassMethods(user);
-                const result = await database.handleGetToken(user.token, user.username);
+                const result = await database.handleCheckToken(user.token, user.username);
                 if (!result.status) {
                     req.session.destroy(); // destroy the current session.
                     const page = { error: true }

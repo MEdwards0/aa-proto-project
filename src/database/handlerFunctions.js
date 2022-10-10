@@ -30,27 +30,32 @@ const factory = ({
     // defaulted to false.
 
     const handleAddUser = async (username, password) => {
+
+        // Get the result from calling addUser. This includes an error result and the issued user id.
         const result = await addUser(username, password);
 
+        // If there is an error, return that to the server for further handling.
         if (result.error) {
             return {
                 status: false,
                 error: result.error
-            }
-        }
+            };
+        };
+
+        // Call addAdmin and store the result of it here. Returns true or false.
         const response = await addAdmin(result.id);
 
         if (!response) {
             return {
                 status: false,
                 error: true
-            }
-        }
+            };
+        };
         
         return {
             status: true,
             error: false
-        }
+        };
     };
 
     // Log in function to allow users into the app by username and password.
