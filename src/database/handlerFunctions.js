@@ -29,7 +29,7 @@ const factory = ({
     // Add a user to the database. Returns an error if there is a name taken. Also adds a record to the admin table
     // defaulted to false.
 
-    const handleAddUser = async (username, password) => {
+    const handleCreateUser = async (username, password) => {
 
         // Get the result from calling addUser. This includes an error result and the issued user id.
         const result = await addUser(username, password);
@@ -45,6 +45,7 @@ const factory = ({
         // Call addAdmin and store the result of it here. Returns true or false.
         const response = await addAdmin(result.id);
 
+        // If response is false, return an error.
         if (!response) {
             return {
                 status: false,
@@ -52,6 +53,7 @@ const factory = ({
             };
         };
         
+        // Getting to the end of the function means there were no errors. Return a valid response to the server.
         return {
             status: true,
             error: false
@@ -71,10 +73,10 @@ const factory = ({
             const hash = user.password;
             const result = await checkPassword(password, hash);
 
-            // If status is okay, then add a new token to the database and return useable information.
+            // If status is okay, then add a new token to the database and return required data.
 
-            if (result.status) {
-
+            if (result.status) {    
+                // Add a new access token for the user.
                 const token = await addToken(user.id, user.username);
                 return {
                     status: result.status,
@@ -86,8 +88,8 @@ const factory = ({
                         admin: user.admin,
                         accountActive: user.accountActive
                     }
-                }
-            }
+                };
+            };
 
             // If the function manages to get here, no valid information was found. return here with an error.
             return {
@@ -100,7 +102,7 @@ const factory = ({
                 status: false,
                 error: true
             };
-        }
+        };
     };
 
     // Get a token from the database.
@@ -318,7 +320,7 @@ const factory = ({
     // return the functions when the factory function is invoked. 
 
     return {
-        handleAddUser,
+        handleCreateUser,
         handleLogIn,
         handleCheckToken,
         handleRemoveToken,

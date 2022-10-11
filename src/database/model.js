@@ -16,8 +16,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
     return {
 
-        // // Function to add users to our database. Takes a username and a password. The username is encrypted.
-        // // Returns the user id for use after adding to the database.
+        // Function to add users to our database. Takes a username and a password. The username is encrypted.
+        // Returns the user id for use after adding to the database.
         addUser: async (username, password) => {
             try {
                 const hash = await encryptInput(password);
@@ -41,7 +41,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Function to add admins to the database that takes an id as an argument. This implementation sets the value to false.
+        // Function to add admins to the database that takes an id as an argument. This implementation sets the value to false.
 
         addAdmin: async (id) => {
             try {
@@ -53,7 +53,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Get user data from the database where we can find the username. If not, return an error and a message, otherwise, the user data.
+        // Get user data from the database where we can find the username. If not, return an error and a message, otherwise, the user data.
 
 
         getUser: async (username) => {
@@ -86,7 +86,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Function to take an input and check its hash value. Returns an error true or false depending on response.
+        // Function to take an input and check its hash value. Returns an error true or false depending on response.
 
         checkPassword: async (input, hash) => {
 
@@ -110,7 +110,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Add a token using a userId and a username. Creates a random token each time then adds it to the database. Returns the same token at the end.
+        // Add a token using a userId and a username. Creates a random token each time then adds it to the database. Returns the same token at the end.
 
         addToken: async (userId, username) => {
             try {
@@ -124,7 +124,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Queries the database for a token and a name inputted here. Returns username, id and token data if a match is found.
+        // Queries the database for a token and a name inputted here. Returns username, id and token data if a match is found.
 
         checkToken: async (token, username) => {
             try {
@@ -150,7 +150,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Deletes all expired tokens from the database.
+        // Deletes all expired tokens from the database.
 
         deleteExpiredTokens: async () => {
             try {
@@ -163,7 +163,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Deletes any duplicate tokens for the user active user.
+        // Deletes any duplicate tokens for the user active user.
 
         deleteUnusedTokens: async (token, username) => {
             try {
@@ -176,7 +176,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Deletes any requested tokens from the database.
+        // Deletes any requested tokens from the database.
 
         deleteToken: async (token) => {
             try {
@@ -189,7 +189,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Query to find an nino in the database. Returns with an object with a status property of true or false.
+        // Query to find an nino in the database. Returns with an object with a status property of true or false.
 
         findNino: async (nino) => {
             try {
@@ -213,7 +213,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
         },
 
-        // // Return security questions for the requested nino.
+        // Return security questions for the requested nino.
 
         getSecurityQuestions: async (nino) => {
             try {
@@ -228,7 +228,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Check security answers inputted for what we have in the database related to the inputted nino. Return true or false if they match.
+        // Check security answers inputted for what we have in the database related to the inputted nino. Return true or false if they match.
 
         checkSecurityAnswers: async (nino, answerOne, answerTwo, answerThree) => {
             try {
@@ -253,7 +253,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Function to return all customer data for the inputted nino.
+        // Function to return all customer data for the inputted nino.
 
         getCustomer: async (nino) => {
             try {
@@ -283,7 +283,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Function to get the award rate of the customer dependant on the nino.
+        // Function to get the award rate of the customer dependant on the nino.
 
         getAward: async (nino) => {
             try {
@@ -307,7 +307,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Update claim information for the customer in the databse. Takes an object as an argument. Returns an error of true or false.
+        // Update claim information for the customer in the database. Takes an object as an argument. Returns an error of true or false.
 
         addClaim: async (object) => {
             try {
@@ -326,8 +326,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Add a new customer to the database. This function takes a customer object with several properties passed in to be used. If there is an error,
-        // // return an error of true and an error message. If there is no error, return the added customer.
+        // Add a new customer to the database. This function takes a customer object with several properties passed in to be used. If there is an error,
+        // return an error of true and an error message. If there is no error, return the added customer.
 
         addCustomer: async (customer) => {
 
@@ -352,8 +352,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Add a customer access token for a user using a nino. This is needed to allow the user to be able to access customer data. Only one token for the user or the nino can be used at any one time.
-        // // Returns the issued token at the end.
+        // Add a customer access token for a user using a nino. This is needed to allow the user to be able to access customer data. Only one token for the user or the nino can be used at any one time.
+        // Returns the issued token at the end.
 
         addCustomerAccessToken: async (user, nino) => {
             // Delete any entries where the user already has a token issued.
@@ -388,8 +388,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
 
         },
 
-        // // Checks the database for a customer access token, taking a toke, user and nino to check against. If there is an error, set error to true and return a message. 
-        // // Else, return access token in an object.
+        // Checks the database for a customer access token, taking a toke, user and nino to check against. If there is an error, set error to true and return a message. 
+        // Else, return access token in an object.
 
         checkCustomerAccessToken: async (token, user, nino) => {
 
@@ -420,7 +420,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             }
         },
 
-        // // Remove customer access token from the database wherever a match is found.
+        // Remove customer access token from the database wherever a match is found.
 
         deleteCustomerAccessToken: async (token) => {
 
@@ -434,8 +434,8 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             }
         },
 
-        // // Add customer security answers when a new customer adds their information. Answers are encrypted at this stage. This function takes an object and needs required parameters for use.
-        // // Returns an object with an error of true or false and an error message where necessary.
+        // Add customer security answers when a new customer adds their information. Answers are encrypted at this stage. This function takes an object and needs required parameters for use.
+        // Returns an object with an error of true or false and an error message where necessary.
 
         addCustomerSecurity: async (customer) => {
             try {
@@ -461,7 +461,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             };
         },
 
-        // // Return all users as an array of key value pairs, excluding the username specified.
+        // Return all users as an array of key value pairs, excluding the username specified.
 
         getAllUsers: async (username) => {
             try {
@@ -492,7 +492,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             }
         },
 
-        // // Toggle the admin status of a user, using their id which is found in the admin table. 
+        // Toggle the admin status of a user, using their id which is found in the admin table. 
 
         toggleAdmin: async (id) => {
             try {
@@ -514,7 +514,7 @@ const databaseModel = (database, encryptInput, checkEncryption) => {
             }
         },
 
-        // // Toggle account activation status using both an id and username as parameters. 
+        // Toggle account activation status using both an id and username as parameters. 
 
         toggleAccountActive: async (id, username) => {
             try {

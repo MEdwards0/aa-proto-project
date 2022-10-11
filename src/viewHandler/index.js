@@ -87,7 +87,7 @@ const handler = () => {
 
     const createUser = async (req, res) => {
         const { username, password } = req.body;
-        const result = await controller.database.handleAddUser(username.toUpperCase(), password);
+        const result = await controller.database.handleCreateUser(username.toUpperCase(), password);
 
         if (result.status) {
             res.render('confirm_user_created');
