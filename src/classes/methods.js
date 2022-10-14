@@ -83,6 +83,4 @@ function addClassMethods(object) {
 
 };
 
-module.exports = {
-    addClassMethods
-};
+module.exports = addClassMethods;

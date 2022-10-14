@@ -14,9 +14,10 @@ app.use(session({
 }))
 const handler = require('./src/viewHandler');
 
+
 app.use(express.static(path.join('./src/public')));
 app.use('controllers', express.static(path.join(__dirname, './controllers')));
-app.use(cookieParser());
+// app.use(cookieParser());
 
 
 // body-parser allow us to parse the body of the request.
@@ -40,11 +41,15 @@ nunjucks.configure(
 
 //  GETS
 
-app.get('/', handler.logInPage);
+app.get('/', handler.displayLogInPage);
 
-app.get('/create-user', handler.createUserForm);
+app.get('/create-user', (req, res) => {
+    res.render('create_user', { error: false });
+});
 
-app.get('/forgot-password', handler.resetPasswordForm);
+app.get('/forgot-password', (req, res) => {
+    res.render('forgot_password');
+});
 
 app.get('/user-home', handler.displayUserHome);
 
@@ -79,7 +84,9 @@ app.post('/make-account-admin', handler.makeAccountAdminSubmit);
 
 app.post('/user-home', handler.signIn);
 
-app.post('/reset-password', handler.resetPassword);
+app.post('/reset-password', (req, res) => {
+    res.render('confirm_password_reset');
+});
 
 app.post('/create-user', handler.createUser);
 
