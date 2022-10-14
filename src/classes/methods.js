@@ -81,8 +81,6 @@ function addClassMethods(object) {
     object.removeCustomerInfo = removeCustomerInfo;
     object.sayHello = sayHello;
 
-}
+};
 
-module.exports = {
-    addClassMethods
-}
+module.exports = addClassMethods;
