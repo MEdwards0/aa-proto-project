@@ -340,9 +340,9 @@ describe('model.js', () => {
                     }
                 };
 
-                const { getToken } = model(fakeDatabase, {}, {});
+                const { checkToken } = model(fakeDatabase, {}, {});
 
-                const result = await getToken('exampleToken', 'usernameTest');
+                const result = await checkToken('exampleToken', 'usernameTest');
 
                 expect(result).toStrictEqual({ status: false });
             });
@@ -368,8 +368,8 @@ describe('model.js', () => {
                     }
                 }
 
-                const { getToken } = model(fakeDatabase, {}, {})
-                const result = await getToken('exampleToken', 'exampleUsername');
+                const { checkToken } = model(fakeDatabase, {}, {})
+                const result = await checkToken('exampleToken', 'exampleUsername');
 
                 expect(result).toStrictEqual({ status: true, token: 'token', id: 1, username: 'username' })
             });
@@ -1133,7 +1133,7 @@ describe('model.js', () => {
     describe('adminQueryToken', () => {
         const fakeDatabase = {
             async query(query) {
-                if (query == `SELECT * FROM "token" WHERE "user_name" = 'validUsername';`) {
+                if (query == `SELECT "token" FROM "token" WHERE "user_name" = 'validUsername';`) {
                     return {rows: [{token: 'abcdefg123'}]};
                 };
 
