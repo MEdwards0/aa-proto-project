@@ -2,23 +2,20 @@ const express = require('express');
 const nunjucks = require('nunjucks');
 const path = require('path');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const session =  require('express-session');
-
+const {logger} = require('./src/logging');
+const handler = require('./src/viewHandler');
 
 const app = express();
 app.use(session({
     secret: 'secret-key',
     resave: false,
     saveUninitialized: false,
-}))
-const handler = require('./src/viewHandler');
-
+}));
 
 app.use(express.static(path.join('./src/public')));
 app.use('controllers', express.static(path.join(__dirname, './controllers')));
-// app.use(cookieParser());
-
+app.use(logger.httpLogger);
 
 // body-parser allow us to parse the body of the request.
 app.use(bodyParser.urlencoded(({ extended: false })));
