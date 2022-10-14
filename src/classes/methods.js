@@ -3,11 +3,11 @@
 
 function getUser() { return this.user; };
 
-function getUserLevel() { return this.userLevel };
+function getUserLevel() { return this.userLevel; };
 
-function getActiveAccount() { return this.activeAccount };
+function getActiveAccount() { return this.activeAccount; };
 
-function getLoggedIn() { return this.loggedIn };
+function getLoggedIn() { return this.loggedIn; };
 
 function setActiveAccount(toggle) {
     if (typeof toggle == 'boolean') {
@@ -15,7 +15,7 @@ function setActiveAccount(toggle) {
     } else {
         console.log('user', this.user, 'failed to update active account');
         return 'failed to update active status'
-    }
+    };
 };
 
 function logIn() {
@@ -32,17 +32,17 @@ function clearToken() {
 
 function setToken(token) {
     this.token = token;
-}
+};
 
-function getCustomerAccessToken() { return this.customerAccessToken };
+function getCustomerAccessToken() { return this.customerAccessToken; };
 
 function setCustomerAccessToken(token) {
     this.customerAccessToken = token;
-}
+};
 
 function clearCustomerAccessToken() {
     this.customerAccessToken = undefined;
-}
+};
 
 function setCustomerNino(nino) {
     this.customerNino = nino;
@@ -50,7 +50,7 @@ function setCustomerNino(nino) {
 
 function clearCustomerNino() {
     this.customerNino = undefined;
-}
+};
 
 function removeCustomerInfo() {
     this.customerNino = undefined;
@@ -58,8 +58,8 @@ function removeCustomerInfo() {
 };
 
 function sayHello() {
-    console.log('Hello', this.username)
-}
+    console.log('Hello', this.username);
+};
 
 // Main function that takes a class and imprints these methods to them.
 
@@ -81,8 +81,8 @@ function addClassMethods(object) {
     object.removeCustomerInfo = removeCustomerInfo;
     object.sayHello = sayHello;
 
-}
+};
 
 module.exports = {
     addClassMethods
-}
+};
