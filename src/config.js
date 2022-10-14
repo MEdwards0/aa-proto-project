@@ -11,7 +11,11 @@ const databasePass = env.DB_PASS || 'password';
 const databasePort = env.DB_PORT || 5432;
 const database = env.DATABASE || 'postgres';
 const defaultAccount = env.DEFAULT_ACCOUNT == 'true' ? true : false;
+const appLevel = env.APP_LEVEL == 'PROD' ? 'PROD' : 'DEV';
+const logLevel = appLevel == 'PROD' ? 'info' : 'trace';
 
+console.log('App level is', appLevel);
+console.log('Log level is', logLevel);
 
 const port = env.PORT || 3000;
 
@@ -22,5 +26,6 @@ module.exports = {
     databasePort,
     database,
     defaultAccount,
-    port
+    port,
+    logLevel
 };

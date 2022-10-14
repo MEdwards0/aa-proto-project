@@ -3,7 +3,7 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session =  require('express-session');
-const {logger} = require('./src/logging');
+const { logger } = require('./src/logging');
 const handler = require('./src/viewHandler');
 
 const app = express();

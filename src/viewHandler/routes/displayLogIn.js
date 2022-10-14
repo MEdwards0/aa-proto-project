@@ -1,7 +1,13 @@
+const {log} = require("../../logging");
+
+
+
 const wrapper = controller => {
     return displayLogInPage = async (req, res) => {
             try {
                 const user = req.session.class;
+
+                log(req).info({session_id: req.session.id, message: 'DISPLAYING HOME SCREEN'});
 
                 if (user == undefined || user.token == undefined) {
                     const page = { error: true, activeAccount: true };
