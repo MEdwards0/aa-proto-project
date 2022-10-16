@@ -10,11 +10,11 @@ const wrapper = (controller, User, Admin) => {
                 // assign the user the correct class depending on admin level.
 
                 if (result.profile.admin) {
-                    req.session.class = req.session.id = new Admin(username.toUpperCase(), result.profile.accountActive);
+                    req.session.class = req.session.id = new controller.Admin(username.toUpperCase(), result.profile.accountActive);
                     user = req.session.class; // set the user class here
 
                 } else {
-                    req.session.class = req.session.id = new User(username.toUpperCase(), result.profile.accountActive);
+                    req.session.class = req.session.id = new controller.User(username.toUpperCase(), result.profile.accountActive);
                     user = req.session.class; // set the user class here
 
                 };

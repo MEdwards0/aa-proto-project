@@ -3,7 +3,7 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session =  require('express-session');
-const { logger } = require('./src/logging');
+const { logger, log } = require('./src/logging');
 const handler = require('./src/viewHandler');
 
 const app = express();
@@ -41,10 +41,12 @@ nunjucks.configure(
 app.get('/', handler.displayLogInPage);
 
 app.get('/create-user', (req, res) => {
+    log(req).info({"session_id": req.session.id, "message": 'To create-user screen'});
     res.render('create_user', { error: false });
 });
 
 app.get('/forgot-password', (req, res) => {
+    log(req).info({"session_id": req.session.id, "message": 'To forgot-password screen'});
     res.render('forgot_password');
 });
 
