@@ -84,6 +84,7 @@ app.post('/make-account-admin', handler.makeAccountAdminSubmit);
 app.post('/user-home', handler.signIn);
 
 app.post('/reset-password', (req, res) => {
+    log(req).info({ "session_id": req.session.id, "message": 'Rendering confirm_password_reset' });
     res.render('confirm_password_reset');
 });
 
