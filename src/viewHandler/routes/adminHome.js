@@ -1,3 +1,5 @@
+const { log } = require("../../logging");
+
 const wrapper = controller => {
     return adminHome = (req, res) => {
             const user = req.session.class;
