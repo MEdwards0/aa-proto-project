@@ -5,7 +5,7 @@ const wrapper = controller => {
         try {
             const user = req.session.class;
 
-            log(req).info({ session_id: req.session.id, message: 'To home screen.' });
+            log(req).info({ "session_id": req.session.id, "message": 'Go to /' });
 
             if (user == undefined || user.token == undefined) {
 
@@ -45,7 +45,7 @@ const wrapper = controller => {
                     });
                     res.render('login', { page: page });
                 } else {
-                    log(req).info({ session_id: req.session.id, message: 'Already logged in. Redirecting to user home.' });
+                    log(req).info({ "session_id": req.session.id, "message": 'Already logged in. Redirecting to /user-home' });
                     res.redirect('/user-home');
                 };
             };
