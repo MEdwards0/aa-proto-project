@@ -1,6 +1,4 @@
-const { log } = require("../../logging");
-
-const wrapper = controller => {
+const wrapper = (controller, log) => {
     return createUser = async (req, res) => {
         const { username, password } = req.body;
         const session = {id: req.session.id}

@@ -1,6 +1,4 @@
-const { log } = require("../../logging");
-
-const wrapper = (controller, User, Admin) => {
+const wrapper = (controller, log) => {
     return signIn = async (req, res) => {
 
         const session = { id: req.session.id }

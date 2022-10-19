@@ -1,6 +1,4 @@
-const { log } = require("../../logging");
-
-const wrapper = controller => {
+const wrapper = (controller, log) => {
     return viewCustomerData = async (req, res) => {
 
         const session = {id: req.session.id}

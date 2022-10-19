@@ -1,6 +1,4 @@
-const { log } = require("../../logging");
-
-const wrapper = controller => {
+const wrapper = (controller, log) => {
     return addCustomerForm = async (req, res) => {
         log(req).info({ "session_id": req.session.id, "message": 'Go to /add-customer' });
 

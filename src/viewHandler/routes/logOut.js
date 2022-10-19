@@ -1,6 +1,4 @@
-const { log } = require("../../logging");
-
-const wrapper = controller => {
+const wrapper = (controller, log) => {
     return logOut = async (req, res) => {
         const session = {id: req.session.id}
         log(req).info({ "session_id": session.id, "message": 'Logging out' });

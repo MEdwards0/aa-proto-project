@@ -1,7 +1,8 @@
 // This file handles the views for the application. it depends on database calls, claim functionality, and Claim functionality
-// const database = require('../database');
+
 const { User, Admin } = require("../classes");
-// const { addClassMethods } = require('../classes/methods');
+const {log} = require('../logging');
+
 const controller = {
     database: require('../database'),
     addClassMethods: require('../classes/methods'),
@@ -9,28 +10,25 @@ const controller = {
     User: User,
     Admin: Admin
 };
-// const claim = require('../claim');
 
-
-
-const activateAccountSubmit = require('./routes/activateAccountSubmit')(controller);
-const addCustomerForm = require('./routes/addCustomerForm')(controller);
+const activateAccountSubmit = require('./routes/activateAccountSubmit')(controller, log);
+const addCustomerForm = require('./routes/addCustomerForm')(controller, log);
 const addCustomerSecurityForm = require('./routes/addCustomerSecurityForm')(controller);
 const addCustomerSubmit = require('./routes/addCustomerSubmit')(controller);
-const adminHome = require('./routes/adminHome')(controller);
-const checkSecurityQuestions = require('./routes/checkSecurityQuestions')(controller);
-const createUser = require('./routes/createUser')(controller);
-const displayLogInPage = require('./routes/displayLogInPage')(controller);
-const displayUserHome = require('./routes/displayUserHome')(controller);
-const logOut = require('./routes/logOut')(controller);
-const makeAccountAdminSubmit = require('./routes/makeAccountAdminSubmit')(controller);
-const manageUsers = require('./routes/manageUsers')(controller);
-const processCustomer = require('./routes/processCustomer')(controller);
-const signIn = require('./routes/signIn')(controller, User, Admin);
-const submitApplication = require('./routes/submitApplication')(controller);
-const validateNino = require('./routes/validateNino')(controller);
-const validateNinoForm = require('./routes/validateNinoForm')(controller);
-const viewCustomerData = require('./routes/viewCustomerData')(controller);
+const adminHome = require('./routes/adminHome')(controller, log);
+const checkSecurityQuestions = require('./routes/checkSecurityQuestions')(controller, log);
+const createUser = require('./routes/createUser')(controller, log);
+const displayLogInPage = require('./routes/displayLogInPage')(controller, log);
+const displayUserHome = require('./routes/displayUserHome')(controller, log);
+const logOut = require('./routes/logOut')(controller, log);
+const makeAccountAdminSubmit = require('./routes/makeAccountAdminSubmit')(controller, log);
+const manageUsers = require('./routes/manageUsers')(controller, log);
+const processCustomer = require('./routes/processCustomer')(controller, log);
+const signIn = require('./routes/signIn')(controller, log);
+const submitApplication = require('./routes/submitApplication')(controller, log);
+const validateNino = require('./routes/validateNino')(controller, log);
+const validateNinoForm = require('./routes/validateNinoForm')(controller, log);
+const viewCustomerData = require('./routes/viewCustomerData')(controller, log);
 
 const handler = () => {
 
