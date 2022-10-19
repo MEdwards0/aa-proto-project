@@ -1,6 +1,6 @@
 const wrapper = (controller, log) => {
     return logOut = async (req, res) => {
-        const session = {id: req.session.id}
+        const session = { id: req.session.id }
         log(req).info({ "session_id": session.id, "message": 'Logging out' });
 
         try {
@@ -21,17 +21,14 @@ const wrapper = (controller, log) => {
             user.logOut();
             log(req).info({ "session_id": session.id, "message": 'Successfully logged out. Redirecting to /' });
             req.session.destroy(); // destroy the current session.
-            
+
             res.redirect('/');
 
         } catch (error) {
             console.log(error)
-            if (session.id == undefined) {
-                log(req).info({ "session_id": session.id, "message": 'Successfully logged out. Redirecting to /' });
-            }
+            log(req).info({ "session_id": session.id, "message": 'Successfully logged out. Redirecting to /' });
             res.redirect('/');
         };
-
     };
 };
 

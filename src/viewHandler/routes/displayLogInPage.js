@@ -38,7 +38,7 @@ const wrapper = (controller, log) => {
                 if (!result.status) {
                     log(req).info({"session_id": session.id, "message": "Invalid token. Rendering Log in screen"});
                     req.session.destroy(); // destroy the current session.
-                    const page = { error: true };
+                    const page = { error: false }; // Don't show error as the token is invalid, meaning expired or manually deleted. Show fresh log in page.
                     log(req).debug({
                         "session_id": session.id, "key_variables": {
                             "result.status": result.status
