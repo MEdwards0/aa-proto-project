@@ -20,7 +20,7 @@ This application is a WIP *prototype* of an AA front end application designed to
 
 `docker-compose up`
 
-The application should now be running. If no settings have been altered, the exposed port will be 8080. Going to *localhost:8080* on your browser should connect to the homepage.
+The application should now be running. If no settings have been altered, the exposed port will be 8080. Going to *localhost:8080* on your browser should connect to the ==homepage==.
 
 ### Notes:
 
