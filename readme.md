@@ -27,7 +27,7 @@ The application should now be running. If no settings have been altered, the exp
 - Environment variables can be altered in *node.dockerfile* to suit your needs.
 - Final port mapping can be changed in *docker-compose.yml*. Default is set to 8080.
 - By default, a user account is created upon startup. postgres will start displaying harmless errors when started up again and the default account has already been created.
-- The default account credentials are **user**: *admin* **pass**: *pass*
+- The default account credentials are ==**user**: *admin* **pass**: *pass*==
 - New user accounts can be created by following links in the footer on the home page.
 - Forgot password is there as a placeholder and has no functionality.
 - Change password is also there as a placeholder.
