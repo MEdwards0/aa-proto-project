@@ -72,4 +72,4 @@ APP_LEVEL="DEV"
 
 `npm start`
 
-- The application should now be running.
+The application should now be running. If no settings have been altered, the exposed port will be 3000. Going to localhost:3000 on your browser should connect to the homepage.
