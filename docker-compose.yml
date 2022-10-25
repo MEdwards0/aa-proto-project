@@ -1,0 +1,32 @@
+version: '0.1'
+
+services:
+  node:
+    container_name: aa-prototype
+    image: aa-prototype
+    build:
+      context: .
+      dockerfile: node.dockerfile
+    ports: 
+      - "8080:5000"
+    networks:
+      - aa-prototype-network
+    depends_on:
+      - db
+  db:
+    image: postgres:15.0
+    ports: 
+      - 5432:5432
+    container_name: postgres
+    networks: 
+      - aa-prototype-network
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  aa-prototype-network:
+    driver: bridge

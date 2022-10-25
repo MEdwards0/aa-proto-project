@@ -1,5 +1,3 @@
 .env
 node_modules
-docker-compose.yml
-DockerFile
 todo.txt

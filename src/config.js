@@ -6,7 +6,7 @@ require('dotenv').config();
 const env = process.env;
 
 const databaseHost = env.DB_HOST || 'localhost';
-const databaseUser = env.USER || 'postgres';
+const databaseUser = env.DB_USER || 'username';
 const databasePass = env.DB_PASS || 'password';
 const databasePort = env.DB_PORT || 5432;
 const database = env.DATABASE || 'postgres';
